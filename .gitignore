@@ -1,55 +1,7 @@
-hp_config
-
-# media files
-*.esp
-*.tiff
-*.pyc
-*.zip
-*.JPG
-*.pkl
-*.mp4
+# add files to ignore
 *.png
-
-# Python-related
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-
-# Virtual environments
-venv/
-env/
-.env/
-
-# Jupyter Notebooks
-.ipynb_checkpoints/
-
-# Development and runtime files
-*.log
-*.bak
-*.swp
-*.tmp
-
-# IDE-specific
-.vscode/
-.idea/
-
-# Python package and distribution files
-dist/
-build/
-*.egg-info/
-
-# Compiled files
-*.pyc
-*.pyo
-*.pyd
-
-# Logs and databases
-*.log
-*.sqlite3
-
-# Environment variable files
-.env
-
-#data
-data
+.DS_Store
+# add folders to ignore
+StatSheets/
+Tables_For_Timeline_Maps/
+Report_Checks/
