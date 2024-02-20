@@ -1,0 +1,1 @@
+This folder will contain an optional result reporting infinite values across the selected AOI.

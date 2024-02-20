@@ -1,0 +1,1 @@
+This folder will contain an optional result explaining the completeness of PG cells at less granular resolutions.
