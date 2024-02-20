@@ -1,7 +1,8 @@
 # add files to ignore
 *.png
+*.csv
 .DS_Store
 # add folders to ignore
 StatSheets/
 Tables_For_Timeline_Maps/
-#Report_Checks/
+Report_Checks/
