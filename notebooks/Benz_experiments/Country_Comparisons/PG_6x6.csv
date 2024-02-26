@@ -1,0 +1,80 @@
+,Country,Percentile_of_1,Fatality_95_Percentile
+0,Afghanistan,91.1,55.5
+1,Algeria,91.9,365.9
+2,Angola,93.1,947.0
+3,Armenia,76.6,40.9
+4,Azerbaijan,96.1,40.1
+5,Bahrain,96.9,1993.7
+6,Benin,93.3,149.0
+7,Botswana,99.6,31.1
+8,Bulgaria,9999,9999.0
+9,Burkina Faso,88.2,234.6
+10,Burundi,54.2,152.1
+11,Cameroon,84.7,297.9
+12,Cape Verde,9999,9999.0
+13,Central African Republic,86.9,817.4
+14,Chad,89.9,1270.0
+15,Comoros,99.7,23.6
+16,Congo,91.4,286.9
+17,"Congo, DRC",82.9,419.4
+18,Cote d'Ivoire,94.3,124.4
+19,Djibouti,74.7,267.5
+20,Egypt,91.7,85.6
+21,Equatorial Guinea,85,7.4
+22,Eritrea,86.3,508.4
+23,Ethiopia,79.2,632.9
+24,Gabon,99.7,121.6
+25,Georgia,69.7,63.3
+26,Ghana,99,110.5
+27,Greece,99.2,2.0
+28,Guinea,90.9,425.6
+29,Guinea-Bissau,89.4,76.7
+30,Iran,91.7,153.5
+31,Iraq,67.6,389.5
+32,Israel,25.6,41.8
+33,Jordan,67.4,801.4
+34,Kenya,79.8,345.6
+35,Kuwait,50,567.0
+36,Lebanon,49.6,914.2
+37,Lesotho,95,13.3
+38,Liberia,84.4,516.5
+39,Libya,99,4754.7
+40,Madagascar,99.7,37.7
+41,Malawi,99.5,151.0
+42,Mali,92.8,1946.2
+43,Mauritania,98.4,512.1
+44,Mauritius,9999,9999.0
+45,Morocco,98.4,366.5
+46,Mozambique,99,294.0
+47,Namibia,50,4019.1
+48,Niger,94.3,2504.1
+49,Nigeria,80,192.2
+50,Oman,99.9,132.5
+51,Pakistan,99,100.2
+52,Qatar,98.5,1993.7
+53,Rwanda,52.4,169.2
+54,Sao Tome and Principe,100,2.7
+55,Saudi Arabia,95.8,356.9
+56,Senegal,92.8,61.8
+57,Seychelles,9999,9999.0
+58,Sierra Leone,82.5,430.7
+59,Somalia,74.2,288.4
+60,South Africa,96.1,24.4
+61,South Sudan,62.8,433.9
+62,Sudan,87.8,1028.6
+63,Swaziland,85.4,26.0
+64,Syria,49.1,684.5
+65,Tanzania,90.5,203.3
+66,The Gambia,69.8,71.9
+67,Togo,94.5,104.2
+68,Tunisia,87.5,53.3
+69,Turkey,78.2,296.3
+70,Turkmenistan,99.9,4.1
+71,USSR,92.1,26.3
+72,Uganda,57.1,469.7
+73,United Arab Emirates,50,6.2
+74,Yemen,86.5,225.6
+75,Yemen Arab Republic,9999,9999.0
+76,Yemen People's Republic,9999,9999.0
+77,Zambia,98.2,420.9
+78,Zimbabwe,98.9,41.7
