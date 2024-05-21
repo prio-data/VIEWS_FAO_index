@@ -1,4 +1,5 @@
 # add files to ignore
+*.DS_Store
 *.png
 *.csv
 .DS_Store
