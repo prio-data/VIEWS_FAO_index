@@ -3,7 +3,7 @@ import os
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
 from matplotlib.colors import LinearSegmentedColormap
-from notebooks.Benz_experiments.support_functions.statsheet_input import single_hist_params, timeline_x_axes_params
+from support_functions.statsheet_input import single_hist_params, timeline_x_axes_params
 
 
 #import matplotlib. image as image
