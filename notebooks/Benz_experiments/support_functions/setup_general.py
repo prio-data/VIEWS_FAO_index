@@ -13,7 +13,7 @@ def PGM_preprocess(table):
     table['PerCapitaFatalities'] = table['Fatalities_Sum'] / table['pop_gpw_sum']
     table['PerCapitaFatalities'] = table['PerCapitaFatalities'].replace({np.nan:0})
 
-    table = table.drop(['ged_sb','ged_ns','ged_os','sb_count','ns_count','os_count'], axis = 1)
+    table = table.drop(['ged_sb','ged_ns','ged_os'], axis = 1)
 
     return(table)
 
