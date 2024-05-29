@@ -46,7 +46,7 @@ def single_hist_params (hist):
     xlim_max = max(hist)+1
     xlim_min = min(hist)-1 # for x limit min
 
-    x_ticks = linspace(xlim_min,xlim_max,5)
+    x_ticks = np.linspace(xlim_min,xlim_max,5)
     x_int_list = [int(item) for item in x_ticks]
 
     x_tick_labels = [str(item) for item in x_int_list]
@@ -58,7 +58,7 @@ def single_hist_params (hist):
 
     ylim_min = 0
 
-    y_ticks = linspace(ylim_min,ylim_max,3)
+    y_ticks = np.linspace(ylim_min,ylim_max,3)
     y_int_list = [int(item) for item in y_ticks]
 
     y_tick_labels = [str(item) for item in y_int_list]
