@@ -3,6 +3,21 @@ import os
 
 report_inf = os.getcwd() + '/Report_Checks/Report_inf_values/'
 
+def views_month_id_to_year(month_id: int) -> int:
+    """Converts a month_id to the calendar year of the month_id. Works on vectors/columns of month_ids.
+
+    Parameters
+    ----------
+    month_id : int
+        A count of months starting (from 1) on January 1980.
+
+    Returns
+    -------
+    int
+        The calendar year of the month_id.
+    """
+    return 1980 + (month_id - 1) // 12
+
 
 def PGM_preprocess(table):
 
