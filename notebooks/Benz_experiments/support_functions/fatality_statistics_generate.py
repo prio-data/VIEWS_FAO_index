@@ -1,5 +1,5 @@
-
-
+import numpy as np
+import pandas as pd
 def Format_summary_stats(PG_or_CM, table_to_describe,field_to_describe,zero__or__non_zero):
     
     if PG_or_CM == 'PG':
@@ -7,7 +7,7 @@ def Format_summary_stats(PG_or_CM, table_to_describe,field_to_describe,zero__or_
     else:
         lowpercentile = 0
 
-    p = np.array(arange(lowpercentile, 100.1, 0.1))
+    p = np.array(np.arange(lowpercentile, 100.1, 0.1))
     divisor = 100
     p_div = p/divisor
     l = p_div.tolist()
