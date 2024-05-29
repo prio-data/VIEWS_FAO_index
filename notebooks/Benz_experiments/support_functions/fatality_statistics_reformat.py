@@ -149,7 +149,7 @@ def correct_definition_df__v2(definition_dataframe,original_dataframe, list_of_u
             #in the countries history these values will beyond the accuracy of .1 which is being measured.
 
         #1 If retrieve_nonzero_value is exactly matched to a value in 'definition_dataframe':
-            from_fatalities_interp = list(unique(definition_dataframe['Fatalities']))
+            from_fatalities_interp = list(pd.unique(definition_dataframe['Fatalities']))
             print('Here is a list of unique fatalities from the definition DF')
             print(from_fatalities_interp)
             t_of_f = retrieve_nonzero_value in from_fatalities_interp
