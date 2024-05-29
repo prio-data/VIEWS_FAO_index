@@ -7,6 +7,7 @@ from support_functions.statsheet_input import params_for_graphs, format_for_summ
 from support_functions.statsheet_format import statsheet_v3
 
 import numpy as np
+import pandas as pd
 
 def Empowered_Pantaleon(PG_or_CM, d_pg, d_cm, monthly_or_annual, resolution=0, country=0, recent_or_all=0):
 
@@ -31,7 +32,7 @@ def Empowered_Pantaleon(PG_or_CM, d_pg, d_cm, monthly_or_annual, resolution=0, c
 
     #total_events = report_length(df_ag, PG_or_CM,'Global', monthly_or_annual,res)
     #print(total_events)
-    list_of_fatality_values__ = list(unique(df_ag['Fatalities_Sum']))
+    list_of_fatality_values__ = list(pd.unique(df_ag['Fatalities_Sum']))
 
     format_fatalities_zero=Format_summary_stats(PG_or_CM,df_ag,'Fatalities_Sum','zero')
     #print(format_fatalities_zero.dtypes)
