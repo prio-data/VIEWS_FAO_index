@@ -9,8 +9,8 @@ from support_functions.statsheet_format import statsheet_v3
 import numpy as np
 import pandas as pd
 
-def Empowered_Pantaleon(PG_or_CM, d_pg, d_cm, monthly_or_annual, resolution=0, country=0, recent_or_all=0):
-
+def Empowered_Pantaleon(PG_or_CM, loa, d_pgx, d_cx, monthly_or_annual, resolution=0, country=0, recent_or_all=0):
+    lvl_analysis = loa
     pg__or__cm = PG_or_CM
     res = resolution
     cntry = country
@@ -20,12 +20,21 @@ def Empowered_Pantaleon(PG_or_CM, d_pg, d_cm, monthly_or_annual, resolution=0, c
         #df_pg = queryset_base_PG.publish().fetch()
     #Reset index in order to access 'month_id' and 'priogrid_gid' columns
         #d_pg = d_pg.reset_index()
-        df_109_516 = d_pg.loc[(d_pg['month_id']>=109) & (d_pg['month_id']<= 516)]
+        if lvl_analysis == 'year':
+            df_109_516 = d_pgx.loc[(d_pgx['year_id']>=1989) & (d_pgx['year_id']<= 2022)]
+
+        elif lvl_analysis == 'month':
+            df_109_516 = d_pgx.loc[(d_pgx['month_id']>=109) & (d_pgx['month_id']<= 516)]
 
     else:
         #df_cm = queryset_base_CM.publish().fetch()
         #d_cm = d_cm.reset_index()
-        df_109_516 = d_cm.loc[(d_cm['month_id']>=109) & (d_cm['month_id']<= 516)]
+        if lvl_analysis == 'year':
+            df_109_516 = d_cx.loc[(d_cx['year_id']>=1989) & (d_cx['year_id']<= 2022)]
+        
+        elif lvl_analysis == 'month':
+            df_109_516 = d_cx.loc[(d_cx['month_id']>=109) & (d_cx['month_id']<= 516)]
+
 
     df__PP=PGM_preprocess(df_109_516)
     df_ag, gis=PRIO_Agg_serious(df__PP, monthly_or_annual,pg__or__cm, res, cntry, recent_or_all)
