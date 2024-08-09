@@ -1,6 +1,59 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def plot_time_series_data(df, time_ids, time_id_name, columns, figsize=(18, 25), cmap="rainbow", alpha=0.6, marker='.', s=6):
+    """
+    Plots a grid of scatter plots for specified time_ids and columns.
+
+    Parameters:
+    - df: pandas DataFrame containing the data
+    - time_ids: list of time_ids to plot (e.g., months, years, weeks)
+    - time_id_name: name of the time_id column (e.g 'month_id', 'year_id', 'week_id')
+    - columns: list of columns to plot
+    - figsize: tuple specifying the figure size
+    - cmap: colormap for the scatter plots
+    - alpha: transparency level of the markers
+    - marker: marker style for the scatter plots
+    - s: size of the markers
+    """
+    
+    # Create a subplot grid
+    fig, axes = plt.subplots(nrows=len(columns), ncols=len(time_ids), figsize=figsize)
+
+    # Iterate over the rows and columns to create each subplot
+    for i, col in enumerate(columns):
+
+        # if the columns name includes "likelihood" we the reverse the colormap
+        if "likelihood" in col:
+            cmap_suffix = "_r"
+
+        else:
+            cmap_suffix = ""
+
+        for j, time_id in enumerate(time_ids):
+            ax = axes[i, j]
+            filtered_df = df[df[time_id_name] == time_id]
+            scatter = ax.scatter(filtered_df["col"], filtered_df["row"], c=filtered_df[col], cmap=f'{cmap}{cmap_suffix}', alpha=alpha, marker=marker, s=s)
+            
+            # Add a color bar if the value is a float
+            if filtered_df[col].dtype == "float64":
+                cbar = plt.colorbar(scatter, ax=ax)
+                cbar.set_label(col)
+            
+            # Add labels and title
+            ax.set_xlabel('Column')
+            ax.set_ylabel('Row')
+            ax.set_title(f'{col} for Time ID {time_id}')
+            
+            # Add grid
+            ax.grid(True, linestyle='--', alpha=0.5)
+
+    # Adjust layout
+    plt.tight_layout()
+
+    # Show the plot
+    plt.show()
+
 def plot_random_monthly_and_yearly_data(df_monthly, df_yearly, feature, year=None):
     """
     Plots random monthly and yearly data from the provided DataFrames.
