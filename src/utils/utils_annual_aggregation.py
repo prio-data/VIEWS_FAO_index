@@ -136,22 +136,9 @@ def aggregate_monthly_to_yearly(df):
     ValueError: If required columns are missing.
     """
 
-    # Check that the required columns are present
-   # required_columns = {'pg_id', 'year_id', 'month_id'}
-   # if not required_columns.issubset(df.columns):
-   #     raise ValueError(f"The DataFrame must contain the following columns: {required_columns}")
-   # 
    # # Check if the input DataFrame is empty
     expected_columns = ['pg_id', 'year_id', 'c_id', 'col', 'row', 'sb_best', 'ns_best', 'os_best', 'pop_gpw_sum']
     required_columns = {'pg_id', 'year_id', 'month_id'}
-
-   # if df.empty:
-   #     # Define the expected columns for the output DataFrame
-   #     return pd.DataFrame(columns=expected_columns)
-
-   # # Check that all columns are numeric
-   # if not df.select_dtypes(include='number').columns.equals(df.columns):
-   #     raise TypeError("All columns must be numeric for aggregation.")
 
     # pre-test
     aggregate_monthly_to_yearly_pre_test(df, expected_columns, required_columns)
@@ -177,63 +164,6 @@ def aggregate_monthly_to_yearly(df):
     # Sort the columns according to the order they appear in the list of expected columns
     df_yearly = df_yearly[expected_columns]
     
-#    # Test that the total sum of features is almost the same in the monthly and yearly data
-#    tolerance = 1e-6  # Define a tolerance level for rounding errors
-#    
-#    for feature in columns_to_sum:
-#        monthly_sum = df[feature].sum()
-#        yearly_sum = df_yearly[feature].sum()
-#        if not np.isclose(monthly_sum, yearly_sum, atol=tolerance):
-#            print(f"Monthly sum of {feature}: {monthly_sum}")
-#            print(f"Yearly sum of {feature}: {yearly_sum}")
-#            raise ValueError(f"The total sum of {feature} in the monthly data is not equal to the sum in the yearly data within the tolerance level.")
-#        
-#    # Same but over each year:
-#    for year in df['year_id'].unique():
-#        for feature in columns_to_sum:
-#            monthly_sum = df[df['year_id'] == year][feature].sum()
-#            yearly_sum = df_yearly[df_yearly['year_id'] == year][feature].sum()
-#            if not np.isclose(monthly_sum, yearly_sum, atol=tolerance):
-#                print(f"Year: {year}")
-#                print(f"Monthly sum of {feature} for year {year}: {monthly_sum}")
-#                print(f"Yearly sum of {feature} for year {year}: {yearly_sum}")
-#                raise ValueError(f"The total sum of {feature} in the monthly data for year {year} is not equal to the sum in the yearly data within the tolerance level.")
-#            
-#    # same but over each pg_id:
-#    for pg in df['pg_id'].unique():
-#        for feature in columns_to_sum:
-#            if df[df['pg_id'] == pg][feature].sum() != df_yearly[df_yearly['pg_id'] == pg][feature].sum():
-#                raise ValueError(f"The total sum of {feature} in the monthly data for pg_id {pg} is not equal to the sum in the yearly data.")
-#
-#    # check if the row and col have been acidentally summed in the yearly data
-#    if df_yearly['row'].max() != df['row'].max() and df_yearly['col'].max() != df['col'].max():
-#        raise ValueError("The 'row' and 'col' columns should not be summed in the yearly data.")
-#    
-#    # check if the 'c_id' feature has the same unique values in the monthly and yearly data
-#    if df['c_id'].nunique() != df_yearly['c_id'].nunique():
-#        raise ValueError("The 'c_id' feature should have the same unique values in the monthly and yearly data.")
-#    
-#    # same for pg_id
-#    if df['pg_id'].nunique() != df_yearly['pg_id'].nunique():
-#        raise ValueError("The 'pg_id' feature should have the same unique values in the monthly and yearly data.")
-#    
-#    # same for year_id
-#    if df['year_id'].nunique() != df_yearly['year_id'].nunique():
-#        raise ValueError("The 'year_id' feature should have the same unique values in the monthly and yearly data.")
-#    
-#    # check that the yearly data has the same number of rows as the number of unique 'pg_id' and 'year_id' combinations
-#    if df_yearly.shape[0] != df.groupby(grouping_columns).ngroups:
-#        raise ValueError("The yearly data should have the same number of rows as the number of unique 'pg_id' and 'year_id' combinations.")
-#    
-#    # check that the monthly data has the same number of rows as the number of unique 'pg_id', 'year_id', and 'month_id' combinations
-#    if df.shape[0] != df.groupby(['pg_id', 'year_id', 'month_id']).ngroups:
-#        raise ValueError("The monthly data should have the same number of rows as the number of unique 'pg_id', 'year_id', and 'month_id' combinations.")
-#    
-#    # check that the monthly data is 12 times the size of the yearly data
-#    if df.shape[0] != 12 * df_yearly.shape[0]:
-#        raise ValueError("The monthly data should be 12 times the size of the yearly data.")
-#                      
-
     # post-test
     aggregate_monthly_to_yearly_post_test(df, df_yearly, columns_to_sum)
 
