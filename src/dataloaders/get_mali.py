@@ -71,7 +71,8 @@ def get_country_id():
     Returns:
         int: The country ID for Mali.
     """
-    country_id = 50
+    country_id = 50.
+    
 
     return country_id
 
@@ -97,7 +98,7 @@ def filter_dataframe_by_year_range(df, year_first, year_last): # NOT USING THIS 
     return new_df
 
 
-def get_views_df():
+def get_views_df(): # pretty redundant....
     """
     Fetches and returns the DataFrame from viewser.
 
