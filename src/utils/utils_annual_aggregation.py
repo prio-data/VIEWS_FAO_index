@@ -35,7 +35,7 @@ def aggregate_monthly_to_yearly(df):
     grouping_columns = ['pg_id', 'year_id']
     
     # Identify monthly columns by excluding the grouping columns and 'month_id'
-    monthly_columns = [col for col in df.columns if col not in grouping_columns + ['month_id']]
+    monthly_columns = [col for col in df.columns if col not in grouping_columns + ['month_id', 'col', 'row', 'sb_best', 'ns_best', 'os_best', 'pop_gpw_sum']]
     
     # Group by 'pg_id' and 'year_id', summing the monthly columns
     df_yearly_summed = df.groupby(grouping_columns)[monthly_columns].sum().reset_index()
