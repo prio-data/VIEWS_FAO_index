@@ -6,3 +6,15 @@
 StatSheets/
 Tables_For_Timeline_Maps/
 Report_Checks/
+
+# pkl files
+*.pkl
+
+# python cache
+__pycache__/
+
+# jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# pyc files
+*.pyc
