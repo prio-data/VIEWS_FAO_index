@@ -1,7 +1,9 @@
 # add files to ignore
+*.DS_Store
 *.png
 *.csv
 .DS_Store
+.pyc
 # add folders to ignore
 StatSheets/
 Tables_For_Timeline_Maps/
