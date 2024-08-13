@@ -20,6 +20,8 @@ from utils_date_index import calculate_date_from_index
 from utils_get_country_names_by_ids import get_country_names_by_ids
 
 
+
+
 def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH):
     """
     Plots time series data for a given feature and multiple countries.
@@ -193,6 +195,10 @@ def plot_feature_histograms(df, country_ids, feature, figsize=(16, 8), PATH=PATH
         # Remove zero values
         sub_df = sub_df[sub_df != 0]
 
+        # if the feature name contains "return_period", remove 1 values
+        if 'return_period' in feature:
+            sub_df = sub_df[sub_df != 1]
+
         # Create the histogram plot
         sns.histplot(sub_df, bins=50, kde=True, color=palette[idx], ax=axes[idx], alpha=0.6)
 
@@ -233,16 +239,12 @@ def plot_feature_histograms(df, country_ids, feature, figsize=(16, 8), PATH=PATH
     plt.show()
 
 
-def plot_contry_period_map(df, country_id, feature, periods, figsize=(16, 8)):
+def plot_contry_period_map(df, country_id, feature, periods, figsize=(16, 8), marker_size=64, PATH=PATH):
 
     # Determine the number of rows and columns for subplots
     num_periods = len(periods)
     num_cols = min(3, num_periods)
     num_rows = (num_periods + num_cols - 1) // num_cols
-
-    # adjust marker size
-    base_marker_size = 64  # Base marker size
-    marker_size = base_marker_size / len(periods)**0.18  # Adjust marker size based on the number of periods
 
     # check that wither month_id or year_id is in the columns
     if 'month_id' in df.columns:
@@ -255,6 +257,11 @@ def plot_contry_period_map(df, country_id, feature, periods, figsize=(16, 8)):
 
     else:
         raise ValueError('Time unit not found in the data. Please check the data.')
+    
+    # adjust marker size
+    base_marker_size = marker_size  # Base marker size
+    num_unique_prio_grids_in_country = len(df[(df['c_id'] == country_id) & (df[time_period].isin(periods))]['pg_id'].unique())
+    marker_size = ((base_marker_size / num_unique_prio_grids_in_country)*1000) / len(periods)**0.18  # Adjust marker size based on the number of periods
     
     # Set the figure size
     fig, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
@@ -270,8 +277,13 @@ def plot_contry_period_map(df, country_id, feature, periods, figsize=(16, 8)):
         sub_df =  df[(df['c_id'] == country_id) & (df[time_period] == periode)][['row', 'col', feature, time_period]]
 
         # get the min and max values of the feature for that contry over all the periods
+        unique_values = df[(df['c_id'] == country_id) & (df[time_period].isin(periods))][feature].unique()
+
         vmin = df[(df['c_id'] == country_id) & (df[time_period].isin(periods))][feature].min()
         vmax = df[(df['c_id'] == country_id) & (df[time_period].isin(periods))][feature].max()
+
+        print(f"unique_values: {unique_values}")
+        print(f"vmin: {vmin}, vmax: {vmax}")
 
 
         # is the data frame empty?
