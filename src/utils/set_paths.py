@@ -110,6 +110,21 @@ def get_logo_path(PATH) -> Path:
     PATH_LOGOS = PATH_ROOT / "reports/logos"
     return PATH_LOGOS
 
+def get_data_paths(PATH):
+
+    """
+    Extracts and returns the paths to the raw, processed, and generated data directories within the project.
+    """
+
+    PATH_ROOT = setup_root_paths(PATH)
+
+    PATH_RAW_VIEWSER = PATH_ROOT / "data" / "raw_viewser"
+    PATH_RAW_EXTERNAL = PATH_ROOT / "data" / "raw_external"
+    PATH_PROCESSED = PATH_ROOT / "data" / "processed"
+    PATH_GENERATED = PATH_ROOT / "data" / "generated"
+
+    return PATH_RAW_VIEWSER, PATH_RAW_EXTERNAL, PATH_PROCESSED, PATH_GENERATED
+
 
 import unittest
 import sys
