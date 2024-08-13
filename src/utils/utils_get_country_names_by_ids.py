@@ -11,6 +11,7 @@ setup_project_paths(PATH)
 
 from utils_country_id_csv_to_json import country_id_csv_to_json
 
+
 def get_country_names_by_ids(country_ids, PATH = PATH):
     """
     Matches a list of country IDs to the country IDs in the DataFrame and returns a dictionary
@@ -41,6 +42,14 @@ def get_country_names_by_ids(country_ids, PATH = PATH):
     # check that the df is not empty and rais an error otherwise
     if df_country_index.empty:
         raise ValueError("The MatchingTable_VIEWS_Country_IDs DataFrame is empty.")
+    
+    # check that the country_ids list is not empty and raise an error otherwise
+    if not country_ids:
+        raise ValueError("The country_ids list is empty.")
+    
+    # chekck that the country_ids list is fillede with integers and raise an error otherwise
+    if not all(isinstance(i, int) for i in country_ids):
+        raise ValueError("The country_ids list must contain only integers or floats.")
 
     # Filter the DataFrame to only include rows with the specified country IDs
     filtered_df = df_country_index[df_country_index['country_id'].isin(country_ids)]
