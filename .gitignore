@@ -18,5 +18,6 @@ __pycache__/
 # jupyter notebook checkpoints
 .ipynb_checkpoints/
 
-# pyc files
-*.pyc
+#csv files
+*.csv
+*.csv#
