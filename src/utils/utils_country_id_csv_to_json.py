@@ -30,15 +30,20 @@ def country_id_csv_to_json(delimiter=';', quotechar='"', PATH = PATH):
     # set path to point to the data
     _, PATH_RAW_EXTERNAL, PATH_PROCESSED, _ = get_data_paths(PATH_ROOT)
 
-    print(PATH_RAW_EXTERNAL)
-    print(PATH_PROCESSED)
+    #print(PATH_RAW_EXTERNAL)
+    #print(PATH_PROCESSED)
 
     # check if the path exists and raise an error otherwise
     if not os.path.exists(PATH_PROCESSED):
         raise ValueError(f"Path does not exist: {PATH_PROCESSED}")
 
     PATH_DF = PATH_RAW_EXTERNAL / "MatchingTable_VIEWS_Country_IDs.csv"
-    print(PATH_DF)
+    
+    # check if the path exists and raise an error otherwise
+    if not os.path.exists(PATH_DF):
+        raise ValueError(f"Path does not exist: {PATH_DF}. The csv can be downloaded from the following link: https://viewsforecasting.org/gis-resources/")
+    
+    #print(PATH_DF)
 
     try:
         # Attempt to read the CSV file with additional parameters
