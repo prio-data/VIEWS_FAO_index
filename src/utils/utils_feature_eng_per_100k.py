@@ -4,6 +4,10 @@ import unittest
 
 def feature_eng_fat_per_100k_precheck(df):
 
+    # check that the input is a DataFrame
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("Input is not a pandas DataFrame")
+
     # check if datafram is empty
     if df.empty:
         raise ValueError("Input DataFrame is empty")
@@ -40,6 +44,10 @@ def feature_eng_fat_per_100k_precheck(df):
 
 
 def feature_eng_fat_per_100k_postcheck(df, new_columns):
+
+    # check that the generated object is a DataFrame
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("The generated object is not a pandas DataFrame")
 
     # check if datafram is empty
     if df.empty:
