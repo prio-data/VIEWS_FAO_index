@@ -2,7 +2,67 @@ import numpy as np
 import pandas as pd
 import unittest
 
-def calculate_global_cumulative_distribution(df, value_col):
+def calculate_cumulative_distribution_pretest(df, value_col):
+
+    # check that the input is a DataFrame
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("Input is not a pandas DataFrame")
+
+    # Check if the DataFrame is empty
+    if df.empty:
+        raise ValueError("The input DataFrame is empty.")
+    
+    # Check if the column exists in the DataFrame
+    if value_col not in df.columns:
+        raise KeyError(f"The column '{value_col}' does not exist in the DataFrame.")
+    
+    # Check if the column contains numeric values
+    if not np.issubdtype(df[value_col].dtype, np.number):
+        raise TypeError(f"The column '{value_col}' does not contain numeric values.")
+    
+
+
+def calculate_cumulative_distribution_posttest(cdf_values, feature_values):
+    # Check if a Series is returned
+    if not isinstance(cdf_values, pd.Series):
+        raise ValueError("The output is not a pandas Series.")
+    
+    # Check that it is not empty
+    if cdf_values.empty:
+        raise ValueError("The output Series is empty.")
+    
+    # Check for NaN values
+    if cdf_values.isna().any():
+        raise ValueError("The CDF contains NaN values.")
+    
+    # Check non-decreasing property
+    if not np.all(np.diff(cdf_values) >= 0):
+        raise ValueError("CDF is not non-decreasing.")
+    
+    # Check for strict monotonicity
+    if not np.all(np.diff(cdf_values) > 0):
+        raise ValueError("CDF is not strictly increasing.")
+    
+    # Check range
+    if not (np.all(cdf_values >= 0) and np.all(cdf_values <= 1)):
+        raise ValueError("CDF values are not within the range [0, 1].")
+    
+    # Check limits should be zero or above and one or below
+    if not np.isclose(cdf_values.iloc[0], 0, atol=1e-5) or not np.isclose(cdf_values.iloc[-1], 1):
+        raise ValueError("CDF does not start at zero and end at one.")
+    
+    # Check proper normalization
+    if not np.isclose(cdf_values.diff().fillna(cdf_values.iloc[0]).sum(), 1):
+        raise ValueError("CDF is not properly normalized.")
+    
+    # Check proper length
+    if len(cdf_values) != len(feature_values.unique()):
+        raise ValueError("The length of the CDF does not match the number of unique values in the input data.")
+        
+
+
+
+def calculate_cumulative_distribution(df, value_col):
     """
     Calculate the cumulative distribution of values across all voxels.
 
@@ -18,65 +78,22 @@ def calculate_global_cumulative_distribution(df, value_col):
     KeyError: If the specified column does not exist in the DataFrame.
     TypeError: If the specified column does not contain numeric values.
     """
-    # Check if the DataFrame is empty
-    if df.empty:
-        raise ValueError("The input DataFrame is empty.")
-    
-    # Check if the column exists in the DataFrame
-    if value_col not in df.columns:
-        raise KeyError(f"The column '{value_col}' does not exist in the DataFrame.")
-    
-    # Check if the column contains numeric values
-    if not np.issubdtype(df[value_col].dtype, np.number):
-        raise TypeError(f"The column '{value_col}' does not contain numeric values.")
+
+    # Perform pre-tests
+    calculate_cumulative_distribution_pretest(df, value_col)
     
     # Calculate the frequency of each unique value
     value_counts = df[value_col].value_counts().sort_index(ascending=False)
     
     # Compute the cumulative distribution
     cumulative_distribution = value_counts.cumsum()
-    
-    # Check if the cumulative distribution is correctly calculated
-    if cumulative_distribution.empty:
-        raise ValueError("The cumulative distribution calculation resulted in an empty series.")
-    
-    return cumulative_distribution
+
+    # Normalize the cumulative distribution to get the CDF
+    cdf = cumulative_distribution / cumulative_distribution.iloc[-1]
+
+    # Perform post-tests
+    calculate_cumulative_distribution_posttest(cdf, df[value_col])
+
+    return cdf
 
 
-# class TestCalculateCumulativeDistribution(unittest.TestCase):
-# 
-#     def test_empty_dataframe(self):
-#         df = pd.DataFrame()
-#         with self.assertRaises(ValueError):
-#             calculate_cumulative_distribution(df, 'value')
-# 
-#     def test_column_not_exist(self):
-#         df = pd.DataFrame({'value': [1, 2, 3]})
-#         with self.assertRaises(KeyError):
-#             calculate_cumulative_distribution(df, 'non_existent_column')
-# 
-#     def test_non_numeric_column(self):
-#         df = pd.DataFrame({'value': ['a', 'b', 'c']})
-#         with self.assertRaises(TypeError):
-#             calculate_cumulative_distribution(df, 'value')
-# 
-#     def test_correct_cumulative_distribution(self):
-#         df = pd.DataFrame({'value': [1, 2, 2, 3, 3, 3]})
-#         expected_result = pd.Series([3, 5, 6], index=[3, 2, 1])
-#         result = calculate_cumulative_distribution(df, 'value')
-#         pd.testing.assert_series_equal(result, expected_result)
-# 
-#     def test_single_value_column(self):
-#         df = pd.DataFrame({'value': [1]})
-#         expected_result = pd.Series([1], index=[1])
-#         result = calculate_cumulative_distribution(df, 'value')
-#         pd.testing.assert_series_equal(result, expected_result)
-# 
-#     def test_all_same_values(self):
-#         df = pd.DataFrame({'value': [2, 2, 2, 2]})
-#         expected_result = pd.Series([4], index=[2])
-#         result = calculate_cumulative_distribution(df, 'value')
-#         pd.testing.assert_series_equal(result, expected_result)
-# 
-# if __name__ == '__main__':
-#     unittest.main()
