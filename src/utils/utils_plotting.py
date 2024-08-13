@@ -137,6 +137,96 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
     plt.show()
 
 
+
+def plot_feature_histograms(df, country_ids, feature, figsize=(16, 8)):
+    """
+    Plots histograms of a specified feature for multiple countries in subplots.
+
+    Parameters:
+    df (pd.DataFrame): DataFrame containing the data.
+    country_ids (list): List of country IDs to filter the data.
+    feature (str): The feature/column to plot.
+    logo_path (str): Path to the logo image file.
+    figsize (tuple, optional): Figure size for the plot. Defaults to (16, 8).
+
+    Returns:
+    None
+    """
+    
+    # Ensure country_ids is a list
+    if not isinstance(country_ids, list):
+        raise ValueError('Country IDs should be provided as a list.')
+
+    # Determine the number of rows and columns for subplots
+    num_countries = len(country_ids)
+    num_cols = min(4, num_countries)
+    num_rows = (num_countries + num_cols - 1) // num_cols
+
+    # check that wither month_id or year_id is in the columns
+    if 'month_id' in df.columns:
+        time_period = 'monthly'
+    
+    elif 'year_id' in df.columns:
+        time_period = 'yearly'
+
+    else:
+        raise ValueError('Time unit not found in the data. Please check the data.')
+
+    # Set the figure size
+    fig, axes = plt.subplots(num_rows, num_cols, figsize=figsize)
+    axes = axes.flatten()  # Flatten the axes array for easy iteration
+
+    # Set the style
+    sns.set(style="whitegrid")
+
+    # Define a color palette
+    palette = sns.color_palette("tab10", num_countries)
+
+    # Plot each country's histogram in a subplot
+    for idx, country_id in enumerate(country_ids):
+        # Filter the data for the specified country and feature
+        sub_df = df[df['c_id'] == country_id][feature]
+
+        # Remove zero values
+        sub_df = sub_df[sub_df != 0]
+
+        # Create the histogram plot
+        sns.histplot(sub_df, bins=50, kde=True, color=palette[idx], ax=axes[idx], alpha=0.6)
+
+        # Add titles and labels
+        axes[idx].set_title(f'Country ID: {country_id}', fontsize=14)
+        axes[idx].set_xlabel(feature.replace("_", " ").title(), fontsize=12)
+        axes[idx].set_ylabel('Frequency', fontsize=12)
+
+        # Customize the grid
+        axes[idx].grid(True, linestyle='--', alpha=0.7)
+
+    # Remove any unused subplots
+    for j in range(idx + 1, len(axes)):
+        fig.delaxes(axes[j])
+
+    # Add a super title
+    fig.suptitle(f'Histogram of {feature.replace("_", " ").title()} for Selected Countries ({time_period})', fontsize=16)
+
+    # Add a logo next to the super title if available
+    PATH_logo = get_logo_path(PATH) / 'VIEWS_logo.png'
+    if not PATH_logo.is_file():
+        print("Logo not found, please make sure the logo is available in the logos folder")
+    else:
+        # Load the image
+        image = plt.imread(PATH_logo)
+
+        # Create OffsetImage and AnnotationBbox
+        imagebox = OffsetImage(image, zoom=0.3, alpha=0.7)
+        ab = AnnotationBbox(imagebox, (0.95, 0.96), frameon=False, xycoords='figure fraction', zorder=3)
+        fig.add_artist(ab)
+
+    # Adjust layout and show the plot
+    plt.tight_layout(rect=[0, 0, 1, 0.95])  # Adjust rect to make space for the super title
+    plt.show()
+
+
+
 # 
 # 
 # def plot_time_series_data(df, time_ids, time_id_name, columns, figsize=(18, 25), cmap="rainbow", alpha=0.6, marker='.', s=6):
