@@ -95,5 +95,8 @@ def calculate_likelihood_of_at_least_one_event(cdf, num_trials):
 
     # perform post-tests
     calculate_likelihood_of_at_least_one_event_posttest(at_least_one_occurrence_prob)
+
+    # merge with the original CDF
+    df_at_least_one_occurrence_prob = pd.DataFrame({'cdf': cdf, 'likelihood': at_least_one_occurrence_prob})
     
-    return at_least_one_occurrence_prob
+    return df_at_least_one_occurrence_prob
