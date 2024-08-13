@@ -17,7 +17,7 @@ from set_paths import setup_project_paths, setup_root_paths, get_logo_path
 setup_project_paths(PATH)
 
 from utils_date_index import calculate_date_from_index 
-
+from utils_get_country_names_by_ids import get_country_names_by_ids
 
 def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH):
     """
@@ -81,10 +81,13 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
         # Assert that the contry-time_period data hase been summed correctly (approximate equality)
         assert np.allclose(df_filtered[feature].sum(), df_aggregated[feature].sum(), rtol=1e-5), 'Data aggregation failed.'
 
+        # country name:
+        country_dict = get_country_names_by_ids([country_id])
+        country_name = list(country_dict.values())[0]
 
         # Plotting
         plt.plot(df_aggregated[time_period], df_aggregated[feature], marker=markers[idx % len(markers)], linestyle='-', 
-                 label=f'Country ID: {country_id}', color=palette[idx])
+                 label=f'Country: {country_name} (ID: {country_id})', color=palette[idx])
 
     plt.title(f'Time Series Plot for {feature}', fontsize=16)
     plt.xlabel('Time Period', fontsize=14)
@@ -193,8 +196,12 @@ def plot_feature_histograms(df, country_ids, feature, figsize=(16, 8), PATH=PATH
         # Create the histogram plot
         sns.histplot(sub_df, bins=50, kde=True, color=palette[idx], ax=axes[idx], alpha=0.6)
 
+            # country name:
+        country_dict = get_country_names_by_ids([country_id])
+        country_name = list(country_dict.values())[0]
+
         # Add titles and labels
-        axes[idx].set_title(f'Country ID: {country_id}', fontsize=14)
+        axes[idx].set_title(f'Country: {country_name} (ID: {country_id})', fontsize=14)
         axes[idx].set_xlabel(feature.replace("_", " ").title(), fontsize=12)
         axes[idx].set_ylabel('Frequency', fontsize=12)
 
