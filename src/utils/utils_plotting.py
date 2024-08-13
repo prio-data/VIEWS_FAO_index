@@ -1,5 +1,7 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import seaborn as sns
 #import geopandas as gpd
 #import cartopy.crs as ccrs
@@ -11,62 +13,185 @@ from pathlib import Path
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("VIEWS_FAO_index")+1]]) / "src/utils"))  
 
-from set_paths import setup_project_paths, setup_root_paths
+from set_paths import setup_project_paths, setup_root_paths, get_logo_path
 setup_project_paths(PATH)
 
-def plot_time_series_data(df, time_ids, time_id_name, columns, figsize=(18, 25), cmap="rainbow", alpha=0.6, marker='.', s=6):
+from utils_date_index import calculate_date_from_index 
+
+
+def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8)):
     """
-    Plots a grid of scatter plots for specified time_ids and columns.
+    Plots time series data for a given feature and multiple countries.
 
     Parameters:
-    - df: pandas DataFrame containing the data
-    - time_ids: list of time_ids to plot (e.g., months, years, weeks)
-    - time_id_name: name of the time_id column (e.g 'month_id', 'year_id', 'week_id')
-    - columns: list of columns to plot
-    - figsize: tuple specifying the figure size
-    - cmap: colormap for the scatter plots
-    - alpha: transparency level of the markers
-    - marker: marker style for the scatter plots
-    - s: size of the markers
+    df (pd.DataFrame): DataFrame containing the data.
+    country_ids (list): List of country IDs to filter the data.
+    feature (str): The feature/column to plot.
+    time_periods (list, optional): List of time periods to plot. Defaults to all periods.
+    figsize (tuple, optional): Figure size for the plot. Defaults to (12, 8).
+
+    Returns:
+    None
     """
+
+    # Check that df is a pandas DataFrame and that it is not empty
+    if not isinstance(df, pd.DataFrame) or df.empty:
+        raise ValueError('Input data is not a valid DataFrame or is empty.')
     
-    # Create a subplot grid
-    fig, axes = plt.subplots(nrows=len(columns), ncols=len(time_ids), figsize=figsize)
+    # Check that data has the country ID column
+    if 'c_id' not in df.columns:
+        raise ValueError('Country ID column not found in the data. Please check the data.')
 
-    # Iterate over the rows and columns to create each subplot
-    for i, col in enumerate(columns):
+    # Ensure country_ids is a list
+    if not isinstance(country_ids, list):
+        raise ValueError('Country IDs should be provided as a list.')
 
-        # if the columns name includes "likelihood" we the reverse the colormap
-        if "likelihood" in col:
-            cmap_suffix = "_r"
+    # Check that all country_ids are in the data
+    missing_ids = [cid for cid in country_ids if cid not in df['c_id'].unique()]
+    if missing_ids:
+        raise ValueError(f'Country IDs not found in the data: {missing_ids}')
 
-        else:
-            cmap_suffix = ""
+    # Check which time unit is used in the data by seeing if month_id or year_id is in the columns
+    if 'month_id' in df.columns:
+        time_period = 'month_id'
+    elif 'year_id' in df.columns:
+        time_period = 'year_id'
+    else:
+        raise ValueError('Time unit not found in the data. Please check the data.')
 
-        for j, time_id in enumerate(time_ids):
-            ax = axes[i, j]
-            filtered_df = df[df[time_id_name] == time_id]
-            scatter = ax.scatter(filtered_df["col"], filtered_df["row"], c=filtered_df[col], cmap=f'{cmap}{cmap_suffix}', alpha=alpha, marker=marker, s=s)
-            
-            # Add a color bar if the value is a float
-            if filtered_df[col].dtype == "float64":
-                cbar = plt.colorbar(scatter, ax=ax)
-                cbar.set_label(col)
-            
-            # Add labels and title
-            ax.set_xlabel('Column')
-            ax.set_ylabel('Row')
-            ax.set_title(f'{col} for Time ID {time_id}')
-            
-            # Add grid
-            ax.grid(True, linestyle='--', alpha=0.5)
+    plt.figure(figsize=figsize)
+    sns.set(style="whitegrid")
 
-    # Adjust layout
+    # Define a color palette
+    palette = sns.color_palette("tab10", len(country_ids))
+    markers = ['o', 's', 'D', '^', 'v', '<', '>', 'p', '*', 'h']
+
+    # Plot each country's time series
+    for idx, country_id in enumerate(country_ids):
+        # Filter by country_id
+        df_filtered = df[df['c_id'] == country_id]
+
+        # Filter by time_periods if provided
+        if time_periods is not None:
+            df_filtered = df_filtered[df_filtered[time_period].isin(time_periods)]
+
+        # Aggregate data by summing the feature over time periods
+        df_aggregated = df_filtered.groupby(time_period)[feature].sum().reset_index()
+
+        # Assert that the contry-time_period data hase been summed correctly (approximate equality)
+        assert np.allclose(df_filtered[feature].sum(), df_aggregated[feature].sum(), rtol=1e-5), 'Data aggregation failed.'
+
+
+        # Plotting
+        plt.plot(df_aggregated[time_period], df_aggregated[feature], marker=markers[idx % len(markers)], linestyle='-', 
+                 label=f'Country ID: {country_id}', color=palette[idx])
+
+    plt.title(f'Time Series Plot for {feature}', fontsize=16)
+    plt.xlabel('Time Period', fontsize=14)
+    plt.ylabel(feature, fontsize=14)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.legend(loc='upper left', bbox_to_anchor=(0.85, 1), fontsize=12)
+    plt.xticks(fontsize=12)
+    plt.yticks(fontsize=12)
+
+     # If monthly time period, get all month ids and change them using the calculate_date_from_index function
+    if time_period == 'month_id':
+        # Calculate the dates from the month_id
+        month_dates = [calculate_date_from_index(i) for i in df_aggregated[time_period]]
+    
+        # Check if they start with '01' and use these for the x-tick labels
+        months_labels = [month_label if month_label[:2] == '01' else '' for month_label in month_dates]
+    
+        # Filter the positions for the x-ticks
+        labeled_positions = [pos for pos, label in zip(df_aggregated[time_period], months_labels) if label]
+    
+        # Set the x-ticks and their labels
+        plt.xticks(labeled_positions, [label for label in months_labels if label], rotation=45)
+
+    # for year_id only have the full year on x-axis
+    if time_period == 'year_id':
+        plt.xticks(df_aggregated[time_period], [i for i in df_aggregated[time_period]], rotation=45)
+        
+
+    # now insert our logo under the legende - first check the path if 
+    PATH_logo = get_logo_path(PATH) / "VIEWS_logo.png"
+
+    #only plot if logo is available other wise just show the plot but print a warning
+    if not Path(PATH_logo).is_file():
+
+        print("Logo not found, please make sure the logo is available in the logos folder")
+
+    else:
+
+        # Load the image
+        image = plt.imread(PATH_logo)
+
+        # Create OffsetImage and AnnotationBbox
+        imagebox = OffsetImage(image, zoom=0.3, alpha=0.7)
+        ab = AnnotationBbox(imagebox, (0.8, 0.87), frameon=False, xycoords='axes fraction', zorder=3)
+
+    # Add AnnotationBbox to the plot
+    plt.gca().add_artist(ab)
+
     plt.tight_layout()
-
-    # Show the plot
     plt.show()
 
+
+# 
+# 
+# def plot_time_series_data(df, time_ids, time_id_name, columns, figsize=(18, 25), cmap="rainbow", alpha=0.6, marker='.', s=6):
+#     """
+#     Plots a grid of scatter plots for specified time_ids and columns.
+# 
+#     Parameters:
+#     - df: pandas DataFrame containing the data
+#     - time_ids: list of time_ids to plot (e.g., months, years, weeks)
+#     - time_id_name: name of the time_id column (e.g 'month_id', 'year_id', 'week_id')
+#     - columns: list of columns to plot
+#     - figsize: tuple specifying the figure size
+#     - cmap: colormap for the scatter plots
+#     - alpha: transparency level of the markers
+#     - marker: marker style for the scatter plots
+#     - s: size of the markers
+#     """
+#     
+#     # Create a subplot grid
+#     fig, axes = plt.subplots(nrows=len(columns), ncols=len(time_ids), figsize=figsize)
+# 
+#     # Iterate over the rows and columns to create each subplot
+#     for i, col in enumerate(columns):
+# 
+#         # if the columns name includes "likelihood" we the reverse the colormap
+#         if "likelihood" in col:
+#             cmap_suffix = "_r"
+# 
+#         else:
+#             cmap_suffix = ""
+# 
+#         for j, time_id in enumerate(time_ids):
+#             ax = axes[i, j]
+#             filtered_df = df[df[time_id_name] == time_id]
+#             scatter = ax.scatter(filtered_df["col"], filtered_df["row"], c=filtered_df[col], cmap=f'{cmap}{cmap_suffix}', alpha=alpha, marker=marker, s=s)
+#             
+#             # Add a color bar if the value is a float
+#             if filtered_df[col].dtype == "float64":
+#                 cbar = plt.colorbar(scatter, ax=ax)
+#                 cbar.set_label(col)
+#             
+#             # Add labels and title
+#             ax.set_xlabel('Column')
+#             ax.set_ylabel('Row')
+#             ax.set_title(f'{col} for Time ID {time_id}')
+#             
+#             # Add grid
+#             ax.grid(True, linestyle='--', alpha=0.5)
+# 
+#     # Adjust layout
+#     plt.tight_layout()
+# 
+#     # Show the plot
+#     plt.show()
+# 
 
 #def plot_random_monthly_and_yearly_data(df_monthly, df_yearly, feature, year=None, lock_first_month=False, edge_alpha=0.001, cmap_alpha=1, edge_color=None, edge_width=0.4, save_plot=False, title_fontsize=18, label_fontsize=16, tick_fontsize=16):
 #    """
