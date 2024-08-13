@@ -19,7 +19,7 @@ setup_project_paths(PATH)
 from utils_date_index import calculate_date_from_index 
 
 
-def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8)):
+def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH):
     """
     Plots time series data for a given feature and multiple countries.
 
@@ -138,7 +138,7 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
 
 
 
-def plot_feature_histograms(df, country_ids, feature, figsize=(16, 8)):
+def plot_feature_histograms(df, country_ids, feature, figsize=(16, 8), PATH=PATH):
     """
     Plots histograms of a specified feature for multiple countries in subplots.
 
