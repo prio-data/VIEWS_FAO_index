@@ -29,7 +29,6 @@ def calculate_P_i_pretest(p_i_values, num_trials):
     ValueError: If p_i_values is not properly normalized.
     """
     if not all(0 <= p <= 1 for p in p_i_values):
-        print(p_i_values)
         raise ValueError("All probabilities in p_i_values must be between 0 and 1.")
     
     if num_trials < 0:
@@ -49,17 +48,19 @@ def calculate_P_i_pretest(p_i_values, num_trials):
 
     # Check that the p_i_values start at zero
     if not np.isclose(p_i_values.iloc[0], 0, atol=1e-5):
-        print(p_i_values.iloc[-1])
+        #print(p_i_values.iloc[-1])
         raise ValueError(f"p_i_values do not start at zero. Start value: {p_i_values.iloc[0]}")
 
     # Check that the p_i_values end at one
     if not np.isclose(p_i_values.iloc[-1], 1, atol=1e-5):
-        print(p_i_values.iloc[0])
+        #print(p_i_values.iloc[0])
         raise ValueError(f"p_i_values do not end at one. End value: {p_i_values.iloc[-1]}")
     
     # Check proper normalization
     if not np.isclose(np.diff(p_i_values).sum(), 1):
         raise ValueError("p_i_values is not properly normalized.")
+    
+    return True
 
 def calculate_P_i_posttest(P_i_values):
     """
@@ -88,7 +89,9 @@ def calculate_P_i_posttest(P_i_values):
     #if not np.isclose(P_i_values[0], 0, atol=1e-1) or not np.isclose(P_i_values[-1], 1, atol=1e-1):
     #    raise ValueError(f"The probabilities must start at zero and end at one. Probabilities are min {P_i_values[0]} and max {P_i_values[-1]}.")
 
-def calculate_P_i(p_i_values, num_trials):
+    return True
+
+def calculate_P_i(p_i_df, num_trials):
     """
     Calculate the probability of observing at least one event of a specific value or above 
     over a given number of independent trials or time units using an array of cumulative probabilities (p_i_values).
@@ -108,6 +111,9 @@ def calculate_P_i(p_i_values, num_trials):
                    Here trails would usually refer to a time unit (month, year, etc.) specific number of grif cells in a country or similar spatial aggregation level.
     """
 
+    # get the p_i values
+    p_i_values = p_i_df['p_i']
+
     # Perform pre-tests
     calculate_P_i_pretest(p_i_values, num_trials)
     
@@ -123,4 +129,7 @@ def calculate_P_i(p_i_values, num_trials):
     # Perform post-tests
     calculate_P_i_posttest(P_i_values)
 
-    return P_i_values
+    # map the P_i values to the original DataFrame
+    p_i_df['P_i'] = P_i_values
+
+    return p_i_df # the DataFrame with the P_i values added

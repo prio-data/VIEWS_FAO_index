@@ -29,6 +29,8 @@ def calculate_p_i_pretest(feature_series):
     # Check if the Series contains numeric values
     if not np.issubdtype(feature_series.dtype, np.number):
         raise TypeError("The Series does not contain numeric values.")
+    
+    return True
 
 
 def calculate_p_i_posttest(p_i_values, feature_values):
@@ -101,7 +103,7 @@ def calculate_p_i_posttest(p_i_values, feature_values):
     #if len(p_i_values) != len(feature_values.unique()):
     #    raise ValueError("The length of the p_i values does not match the number of unique values in the input data.")
 
-
+    return True
 
 def calculate_p_i(feature_series):
     """
@@ -133,12 +135,12 @@ def calculate_p_i(feature_series):
     p_i_values = value_counts.cumsum()/ value_counts.sum()
 
     #debugging print
-    print(p_i_values.min(), p_i_values.max())
+    #print(p_i_values.min(), p_i_values.max())
 
     # Perform post-tests
     calculate_p_i_posttest(pd.Series(p_i_values), feature_series)
 
     # make df with p_i_values and value_counts
-    p_i_df = pd.DataFrame({'value': value_counts.index, 'p_i': p_i_values.values})
+    p_i_df = pd.DataFrame({'value_count' : value_counts, 'value': value_counts.index, 'p_i': p_i_values.values}).reset_index(drop=True)
 
     return p_i_df
