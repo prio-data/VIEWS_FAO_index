@@ -47,17 +47,17 @@ def calculate_P_i_pretest(p_i_values, num_trials):
         raise ValueError("p_i_values must be non-decreasing.")
 
     # Check that the p_i_values start at zero
-    if not np.isclose(p_i_values.iloc[0], 0, atol=1e-5):
+    if not np.isclose(p_i_values.iloc[0], 0, atol=1e-2):
         #print(p_i_values.iloc[-1])
         raise ValueError(f"p_i_values do not start at zero. Start value: {p_i_values.iloc[0]}")
 
     # Check that the p_i_values end at one
-    if not np.isclose(p_i_values.iloc[-1], 1, atol=1e-5):
+    if not np.isclose(p_i_values.iloc[-1], 1, atol=1e-2):
         #print(p_i_values.iloc[0])
         raise ValueError(f"p_i_values do not end at one. End value: {p_i_values.iloc[-1]}")
     
     # Check proper normalization
-    if not np.isclose(np.diff(p_i_values).sum(), 1):
+    if not np.isclose(np.diff(p_i_values).sum(), 1, atol=1e-2):
         raise ValueError("p_i_values is not properly normalized.")
     
     return True

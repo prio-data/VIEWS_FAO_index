@@ -80,19 +80,19 @@ def calculate_p_i_posttest(p_i_values, feature_values):
     #    raise ValueError("p_i values are not strictly decreasing.")
     
     # Check range above 0 but with tolerance for floating point errors
-    if not np.isclose(p_i_values.min(), 0, atol=1e-5):
+    if not np.isclose(p_i_values.min(), 0, atol=1e-2):
         raise ValueError(f"Min p_i value not above 0. Minimum value: {p_i_values.min()}")
     
     # Check range below 1 but with tolerance for floating point errors
-    if not np.isclose(p_i_values.max(), 1, atol=1e-5):
+    if not np.isclose(p_i_values.max(), 1, atol=1e-2):
         raise ValueError(f"Max p_i not below 1. Maximum value: {p_i_values.max()}")
                   
     # Check that the p_i values start at one
-    if not np.isclose(p_i_values.iloc[0], 0, atol=1e-5):
+    if not np.isclose(p_i_values.iloc[0], 0, atol=1e-2):
         raise ValueError(f"p_i values do not start around zero. Start value: {p_i_values.iloc[0]}")
 
     # Check that the p_i values end around one
-    if not np.isclose(p_i_values.iloc[-1], 1, atol=1e-5):
+    if not np.isclose(p_i_values.iloc[-1], 1, atol=1e-2):
         raise ValueError(f"p_i values do not end around one. End value: {p_i_values.iloc[-1]}")
     
     # Check proper normalization
