@@ -122,6 +122,43 @@ def aggregate_monthly_to_yearly_post_test(df, df_yearly, columns_to_sum):
         raise ValueError("The monthly data should be 12 times the size of the yearly data.")
 
 
+
+def population_max_post_test(df, df_yearly):
+    """
+    Compare the maximum population values from monthly data with the yearly data.
+
+    This function calculates the maximum population per year from the monthly data,
+    compares it with the yearly data, and identifies any discrepancies.
+
+    Parameters:
+    df (pd.DataFrame): The monthly data DataFrame containing population data.
+    df_yearly (pd.DataFrame): The yearly data DataFrame containing population data.
+
+    Returns:
+    None: The function prints out any discrepancies found between the yearly and monthly max population values.
+    """
+    
+    # Step 1: Calculate the maximum population per year from the monthly data
+    max_pop_monthly = df.groupby(['pg_id', 'year_id'])['pop_gpw_sum'].max().reset_index()
+
+    # Step 2: Compare the yearly data with the recalculated maximums
+    comparison = pd.merge(df_yearly[['pg_id', 'year_id', 'pop_gpw_sum']],
+                          max_pop_monthly,
+                          on=['pg_id', 'year_id'],
+                          suffixes=('_yearly', '_monthly'))
+
+    # Step 3: Identify discrepancies
+    discrepancies = comparison[comparison['pop_gpw_sum_yearly'] != comparison['pop_gpw_sum_monthly']]
+
+    # Output the discrepancies if there are any
+    if not discrepancies.empty:
+        print("Discrepancies found between yearly and monthly max population values:")
+        print(discrepancies)
+    else:
+        print("No discrepancies found. The yearly population matches the max population observed in the monthly data.")
+
+
+
 def aggregate_monthly_to_yearly(df):
     """
     Aggregates monthly data to yearly data.
@@ -151,21 +188,57 @@ def aggregate_monthly_to_yearly(df):
     
     # Group by 'pg_id' and 'year_id', summing the specified columns
     df_yearly_summed = df.groupby(grouping_columns)[columns_to_sum].sum().reset_index()
+
+    # Columns to take the maximum value of
+    #columns_to_max = ['pop_gpw_sum']
     
+    # Identify columns to keep by excluding the columns to sum, grouping columns, and 'month_id'
+    #columns_to_keep = [col for col in df.columns if col not in columns_to_sum + grouping_columns + ['month_id']]
+
+    # Get the first occurrence of the columns to keep since they don't change
+        #df_yearly_intact = df.groupby(grouping_columns)[columns_to_keep].first().reset_index()
+
+    # NEW ----------------------------
+
+    # Columns to take the maximum value of
+    columns_to_max = ['pop_gpw_sum']
+
     # Identify columns to keep by excluding the columns to sum, grouping columns, and 'month_id'
     columns_to_keep = [col for col in df.columns if col not in columns_to_sum + grouping_columns + ['month_id']]
 
-    # Get the first occurrence of the columns to keep since they don't change
-    df_yearly_intact = df.groupby(grouping_columns)[columns_to_keep].first().reset_index()
-    
+    # Define aggregation functions
+    agg_funcs = {col: 'first' for col in columns_to_keep}
+    agg_funcs.update({col: 'max' for col in columns_to_max})
+
+    # Apply groupby with the specified aggregation functions
+    df_yearly_intact = df.groupby(grouping_columns).agg(agg_funcs).reset_index()
+
+    # population max post-test
+    population_max_post_test(df, df_yearly_intact)
+
+    # ----------------------------- NEW
+
+    # Rename the pop_gpw_sum column to avoid conflicts during merge
+    df_yearly_intact = df_yearly_intact.rename(columns={'pop_gpw_sum': 'pop_gpw_sum_max'})
+
     # Merge the summed monthly data with the yearly data
     df_yearly = pd.merge(df_yearly_summed, df_yearly_intact, on=grouping_columns)
+
+    # Drop the incorrect pop_gpw_sum column
+    #df_yearly = df_yearly.drop(columns=['pop_gpw_sum_x'])
+
+    # Rename the correct pop_gpw_sum column
+    #df_yearly = df_yearly.rename(columns={'pop_gpw_sum_y': 'pop_gpw_sum'})
+
+    print(df_yearly.columns)
+
 
     # Sort the columns according to the order they appear in the list of expected columns
     df_yearly = df_yearly[expected_columns]
     
     # post-test
     aggregate_monthly_to_yearly_post_test(df, df_yearly, columns_to_sum)
+
 
     return df_yearly
 
