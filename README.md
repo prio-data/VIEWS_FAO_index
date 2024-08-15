@@ -123,3 +123,11 @@ For more detailed information, refer to the following documents located in the `
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE.md](./LICENSE.md) file for more details.
+
+## Google Cloud Storage data links (currently for internal development)
+
+- **MatchingTable_VIEWS_Country_IDs.csv**: [Download CSV](https://storage.googleapis.com/views-fao_bucket_01/data/raw_external/MatchingTable_VIEWS_Country_IDs.csv)
+- **full_base_01_viewser_df.pkl**: [Download PKL](https://storage.googleapis.com/views-fao_bucket_01/data/raw_viewser/full_base_01_viewser_df.pkl)
+- **MatchingTable_VIEWS_Country_IDs.json**: [Download JSON](https://storage.googleapis.com/views-fao_bucket_01/data/processed/MatchingTable_VIEWS_Country_IDs.json)
+- **df_monthly.pkl**: [Download PKL](https://storage.googleapis.com/views-fao_bucket_01/data/processed/df_monthly.pkl)
+- **df_yearly.pkl**: [Download PKL](https://storage.googleapis.com/views-fao_bucket_01/data/processed/df_yearly.pkl)
