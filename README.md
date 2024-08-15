@@ -14,9 +14,6 @@ Håvard Hegre
 VIEWS Model Deployment and Development  
 [simmaa@prio.org](mailto:simmaa@prio.org)
 
-**Contributors**
-Håvard Hegre
-
 ## VIEWS
 
 The **Violence & Impacts Early-Warning System (VIEWS)** is a state-of-the-art machine learning-based system that forecasts inter- and intrastate conflicts globally, focusing on scenarios involving government-affiliated actors and projecting up to three years into the future. Supported by an integrated consortium, VIEWS spearheads cutting-edge research on conflict forecasting and the analysis of its social impacts while actively engaging with key policymakers and stakeholders through dedicated outreach and knowledge transfer initiatives.
