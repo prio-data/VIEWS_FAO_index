@@ -67,6 +67,9 @@ def setup_project_paths(PATH) -> None:
     PATH_PROCESSED = PATH_ROOT / "data" / "processed"
     PATH_GENERATED = PATH_ROOT / "data" / "generated"
 
+    # Define logos path
+    PATH_LOGOS = PATH_ROOT / "reports/logos"
+
     # Define src-specific paths
     PATH_UTILS = PATH_SRC / "utils"
     PATH_MANAGEMENT = PATH_SRC / "management" # added to keep the management scripts in a separate folder the utils according to Sara's point
@@ -77,7 +80,7 @@ def setup_project_paths(PATH) -> None:
     PATH_DATALOADERS = PATH_SRC / "dataloaders"
 
     paths_to_add = [
-        PATH_ROOT, PATH_COMMON_CONFIGS, PATH_UTILS, PATH_MANAGEMENT, PATH_ARCHITECTURES, 
+        PATH_ROOT, PATH_COMMON_CONFIGS, PATH_LOGOS, PATH_UTILS, PATH_MANAGEMENT, PATH_ARCHITECTURES, 
         PATH_TRAINING, PATH_FORECASTING, PATH_OFFLINE_EVALUATION, PATH_DATALOADERS,
         PATH_RAW_VIEWSER, PATH_RAW_EXTERNAL, PATH_PROCESSED, PATH_GENERATED
     ]
@@ -91,6 +94,37 @@ def setup_project_paths(PATH) -> None:
 
         if path.exists() and path_str not in sys.path:
             sys.path.insert(0, path_str)
+
+# get logo path
+def get_logo_path(PATH) -> Path:
+    """
+    Extracts and returns the path to the logos directory within the project.
+
+    Args:
+        PATH (Path): The base path, typically the path of the script invoking this function (e.g., `PATH = Path(__file__)`).
+
+    Returns:
+        PATH_LOGOS: The path to the logos directory within the project.
+    """
+    PATH_ROOT = setup_root_paths(PATH)
+    PATH_LOGOS = PATH_ROOT / "reports/logos"
+    return PATH_LOGOS
+
+def get_data_paths(PATH):
+
+    """
+    Extracts and returns the paths to the raw, processed, and generated data directories within the project.
+    """
+
+    PATH_ROOT = setup_root_paths(PATH)
+
+    PATH_RAW_VIEWSER = PATH_ROOT / "data" / "raw_viewser"
+    PATH_RAW_EXTERNAL = PATH_ROOT / "data" / "raw_external"
+    PATH_PROCESSED = PATH_ROOT / "data" / "processed"
+    PATH_GENERATED = PATH_ROOT / "data" / "generated"
+
+    return PATH_RAW_VIEWSER, PATH_RAW_EXTERNAL, PATH_PROCESSED, PATH_GENERATED
+
 
 import unittest
 import sys
