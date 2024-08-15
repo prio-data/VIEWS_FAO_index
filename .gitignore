@@ -21,3 +21,6 @@ __pycache__/
 #csv files
 *.csv
 *.csv#
+
+# backup files
+.bak
