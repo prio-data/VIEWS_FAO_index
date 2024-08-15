@@ -23,4 +23,7 @@ __pycache__/
 *.csv#
 
 # backup files
-.bak
+*.bak
+
+# exceptions
+!VIEWS_logo.png
