@@ -22,7 +22,7 @@ from utils_get_country_names_by_ids import get_country_names_by_ids
 
 
 
-def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH):
+def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1)):
     """
     Plots time series data for a given feature and multiple countries.
 
@@ -36,6 +36,7 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
     Returns:
     None
     """
+    # This is a pre-test ----------------------------------------------------------------------
 
     # Check that df is a pandas DataFrame and that it is not empty
     if not isinstance(df, pd.DataFrame) or df.empty:
@@ -54,6 +55,10 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
     if missing_ids:
         raise ValueError(f'Country IDs not found in the data: {missing_ids}')
 
+    # --------------------------------------------------------------------------------------------
+
+    # you jhave a general function for this now -------------------------------------------------
+
     # Check which time unit is used in the data by seeing if month_id or year_id is in the columns
     if 'month_id' in df.columns:
         time_period = 'month_id'
@@ -61,6 +66,8 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
         time_period = 'year_id'
     else:
         raise ValueError('Time unit not found in the data. Please check the data.')
+    
+    # --------------------------------------------------------------------------------------------
 
     plt.figure(figsize=figsize)
     sns.set(style="whitegrid")
@@ -96,7 +103,7 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
     plt.xlabel('Time Period', fontsize=14)
     plt.ylabel(feature, fontsize=14)
     plt.grid(True, linestyle='--', alpha=0.7)
-    plt.legend(loc='upper left', bbox_to_anchor=(0.8, 1), fontsize=12)
+    plt.legend(loc='upper left', bbox_to_anchor=legend_placement, fontsize=12)
     plt.xticks(fontsize=12)
     plt.yticks(fontsize=12)
 
@@ -134,7 +141,7 @@ def plot_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8
 
         # Create OffsetImage and AnnotationBbox
         imagebox = OffsetImage(image, zoom=0.3, alpha=0.7)
-        ab = AnnotationBbox(imagebox, (0.9, 0.85), frameon=False, xycoords='axes fraction', zorder=3)
+        ab = AnnotationBbox(imagebox, logo_placement, frameon=False, xycoords='axes fraction', zorder=3)
 
     # Add AnnotationBbox to the plot
     plt.gca().add_artist(ab)

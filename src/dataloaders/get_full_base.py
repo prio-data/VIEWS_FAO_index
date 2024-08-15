@@ -190,7 +190,7 @@ def fetch_views_df(PATH_RAW):
     Returns:
         pd.DataFrame: The fetched or loaded DataFrame.
     """
-    path_viewser_df = os.path.join(PATH_RAW, f'simon_full_base_01_viewser_df.pkl') 
+    path_viewser_df = os.path.join(PATH_RAW, f'full_base_01_viewser_df.pkl') 
 
     # Create the folders if they don't exist
     os.makedirs(PATH_RAW, exist_ok=True)
