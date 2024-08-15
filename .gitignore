@@ -24,3 +24,6 @@ __pycache__/
 
 # backup files
 *.bak
+
+# exceptions
+!VIEWS_logo.png
