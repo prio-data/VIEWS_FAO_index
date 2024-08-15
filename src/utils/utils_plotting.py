@@ -22,7 +22,7 @@ from utils_get_country_names_by_ids import get_country_names_by_ids
 
 
 
-def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1), force_color = None):
+def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1), force_color = None, save_plot = False, PATH_PLOT = None):
     """
     Plots time series data for a given feature and multiple countries.
 
@@ -154,6 +154,13 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
     plt.gca().add_artist(ab)
 
     plt.tight_layout()
+
+    if save_plot:
+        if PATH_PLOT:
+            plt.savefig(f'{PATH_PLOT}.png', dpi=300, bbox_inches='tight')
+        else:
+            raise ValueError("Please provide a path to save the plot")
+
     plt.show()
 
 
@@ -353,6 +360,9 @@ def plot_contry_period_map(df, country_id, feature, periods, figsize=(16, 8), ma
 
     # Adjust layout to make space for the colorbar
     fig.subplots_adjust(bottom=0.35, top= 0.9, hspace=0.5, wspace=0.2)
+
+    if save_plot:
+        plt.savefig(f'{PATH}.png', dpi=300, bbox_inches='tight')
 
     plt.show()
 
