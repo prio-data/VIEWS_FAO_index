@@ -22,7 +22,7 @@ from utils_get_country_names_by_ids import get_country_names_by_ids
 
 
 
-def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1)):
+def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1), force_color = None):
     """
     Plots time series data for a given feature and multiple countries.
 
@@ -95,9 +95,16 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
         country_dict = get_country_names_by_ids([country_id])
         country_name = list(country_dict.values())[0]
 
+        # if force color is provided, use this color for all countries
+        if force_color:
+            color = force_color
+
+        else:
+            color = palette[idx]
+
         # Plotting
         plt.plot(df_aggregated[time_period], df_aggregated[feature], marker=markers[idx % len(markers)], linestyle='-', 
-                 label=f'Country: {country_name} (ID: {country_id})', color=palette[idx])
+                 label=f'Country: {country_name} (ID: {country_id})', color=color)
 
     plt.title(f'Time Series Plot for {feature}', fontsize=16)
     plt.xlabel('Time Period', fontsize=14)
