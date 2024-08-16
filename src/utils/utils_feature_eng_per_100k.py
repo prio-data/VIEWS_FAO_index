@@ -2,6 +2,88 @@ import numpy as np
 import pandas as pd
 import unittest
 
+def feature_eng_fat_per_100k_precheck(df):
+
+    # check that the input is a DataFrame
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("Input is not a pandas DataFrame")
+
+    # check if datafram is empty
+    if df.empty:
+        raise ValueError("Input DataFrame is empty")
+    
+    # Check if the required columns are present
+    required_columns = ['sb_best', 'ns_best', 'os_best', 'pop_gpw_sum']
+    for col in required_columns:
+        if col not in df.columns:
+            raise ValueError(f"Column {col} is missing from the DataFrame")
+        
+    # Check for the correct data types
+    for col in required_columns:
+        if not np.issubdtype(df[col].dtype, np.number):
+            raise ValueError(f"Column {col} does not have a numeric data type")
+        
+    # Check for NaN values
+    if df[required_columns].isnull().values.any():
+        raise ValueError("Input DataFrame contains NaN values")
+    
+    # Check for negative values
+    if (df[required_columns] < 0).values.any():
+        raise ValueError("Input DataFrame contains negative values")
+    
+    # check is either month_id or year_id is present
+    if 'month_id' not in df.columns and 'year_id' not in df.columns:
+        raise ValueError("Either 'month_id' or 'year_id' column is required in the DataFrame")
+
+    # check for other relevant columns
+    additional_columns = ['c_id', 'pg_id', 'row', 'col']
+    for col in additional_columns:
+        if col not in df.columns:
+            raise ValueError(f"Column {col} is missing from the DataFrame")
+
+
+
+def feature_eng_fat_per_100k_postcheck(df, new_columns):
+
+    # check that the generated object is a DataFrame
+    if not isinstance(df, pd.DataFrame):
+        raise ValueError("The generated object is not a pandas DataFrame")
+
+    # check if datafram is empty
+    if df.empty:
+        raise ValueError("The generated DataFrame is empty")
+                        
+    # Check for the existence of the new columns
+    for col in new_columns:
+        if col not in df.columns:
+            raise ValueError(f"New column {col} is missing from the DataFrame")
+
+    # Check for the correct data types
+    for col in new_columns:
+        if not np.issubdtype(df[col].dtype, np.number):
+            raise ValueError(f"Column {col} does not have a numeric data type")
+
+    # Check for the correct number of rows
+    if len(df) != len(df.dropna()):
+        raise ValueError("The number of rows in the DataFrame has changed")
+
+    # Above 0
+    for col in new_columns:
+        if (df[col] < 0).values.any():
+            raise ValueError(f"Column {col} has negative values")
+
+    # Not NaN, Inf or -Inf
+    for col in new_columns:
+        if df[col].isnull().values.any():
+            raise ValueError(f"Column {col} contains NaN values")
+        if np.isinf(df[col]).values.any():
+            raise ValueError(f"Column {col} contains Inf values")
+        if np.isneginf(df[col]).values.any():
+            raise ValueError(f"Column {col} contains -Inf values")
+
+    return df
+
+
 def feature_eng_fat_per_100k(df):
     """
     Perform feature engineering to calculate fatalities per 100,000 population.
@@ -12,7 +94,9 @@ def feature_eng_fat_per_100k(df):
     Returns:
     pd.DataFrame: Modified DataFrame with new features.
     """
-    # Feature engineering
+
+    # Checks
+    feature_eng_fat_per_100k_precheck(df)
 
     # Total fatalities
     df['total_best'] = df['sb_best'] + df['ns_best'] + df['os_best']
@@ -35,28 +119,12 @@ def feature_eng_fat_per_100k(df):
     # Test that all the new columns are created and have valid values:
     new_columns = ['fatalities_per_100k', 'sb_per_100k', 'ns_per_100k', 'os_per_100k']
     
-    # Check for the existence of the new columns
-    for col in new_columns:
-        assert col in df.columns, f"Column {col} is missing from the DataFrame"
-
-    # Check for the correct data types
-    for col in new_columns:
-        assert np.issubdtype(df[col].dtype, np.number), f"Column {col} does not have a numeric data type"
-
-    # Check for the correct number of rows
-    assert len(df) == len(df.dropna()), "The number of rows in the DataFrame has changed"
-
-    # Above 0
-    for col in new_columns:
-        assert df[col].min() >= 0, f"Column {col} has negative values"
-
-    # Not NaN, Inf or -Inf
-    for col in new_columns:
-        assert not df[col].isnull().values.any(), f"Column {col} contains NaN values"
-        assert not np.isinf(df[col]).values.any(), f"Column {col} contains Inf values"
-        assert not np.isneginf(df[col]).values.any(), f"Column {col} contains -Inf values"
+    # Checks
+    feature_eng_fat_per_100k_postcheck(df, new_columns)
 
     return df
+
+
 
 
 class TestFeatureEngFatPer100k(unittest.TestCase):

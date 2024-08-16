@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import unittest
 from pandas.testing import assert_frame_equal
-
+from scipy.stats import mode
 import numpy as np
 
 def aggregate_monthly_to_yearly_pre_test(df, expected_columns, required_columns):
@@ -19,9 +19,12 @@ def aggregate_monthly_to_yearly_pre_test(df, expected_columns, required_columns)
     ValueError: If the required columns are not present.
     TypeError: If any of the columns are not numeric.
     """
-    # Check that the required columns are present
-    if not required_columns.issubset(df.columns):
-        raise ValueError(f"The DataFrame must contain the following columns: {required_columns}")
+
+
+    
+    # Check that the required columns in the list are present in the DataFrame
+    if not set(required_columns).issubset(df.columns):
+        raise ValueError("Input DataFrame is missing one or more required columns.")
     
     # Check if the input DataFrame is empty
     if df.empty:
@@ -51,7 +54,7 @@ def aggregate_monthly_to_yearly_post_test(df, df_yearly, columns_to_sum):
     for feature in columns_to_sum:
         monthly_sum = df[feature].sum()
         yearly_sum = df_yearly[feature].sum()
-        if not np.isclose(monthly_sum, yearly_sum, atol=tolerance):
+        if not np.all(np.isclose(monthly_sum, yearly_sum, atol=tolerance)):
             print(f"Monthly sum of {feature}: {monthly_sum}")
             print(f"Yearly sum of {feature}: {yearly_sum}")
             raise ValueError(f"The total sum of {feature} in the monthly data is not equal to the sum in the yearly data within the tolerance level.")
@@ -122,86 +125,135 @@ def aggregate_monthly_to_yearly_post_test(df, df_yearly, columns_to_sum):
         raise ValueError("The monthly data should be 12 times the size of the yearly data.")
 
 
-def aggregate_monthly_to_yearly(df):
+
+def population_max_post_test(df, df_yearly):
     """
-    Aggregates monthly data to yearly data.
+    Compare the maximum population values from monthly data with the yearly data.
+
+    This function calculates the maximum population per year from the monthly data,
+    compares it with the yearly data, and identifies any discrepancies.
+
+    Parameters:
+    df (pd.DataFrame): The monthly data DataFrame containing population data.
+    df_yearly (pd.DataFrame): The yearly data DataFrame containing population data.
+
+    Returns:
+    None: The function prints out any discrepancies found between the yearly and monthly max population values.
+    """
     
-    Args:
-    df (pd.DataFrame): The data as a pandas DataFrame. Must contain 'pg_id', 'year_id', and 'month_id' columns.
+    # Step 1: Calculate the maximum population per year from the monthly data
+    max_pop_monthly = df.groupby(['pg_id', 'year_id'])['pop_gpw_sum'].max().reset_index()
+
+    # Step 2: Compare the yearly data with the recalculated maximums
+    comparison = pd.merge(df_yearly[['pg_id', 'year_id', 'pop_gpw_sum']],
+                          max_pop_monthly,
+                          on=['pg_id', 'year_id'],
+                          suffixes=('_yearly', '_monthly'))
+
+    # Step 3: Identify discrepancies
+    discrepancies = comparison[comparison['pop_gpw_sum_yearly'] != comparison['pop_gpw_sum_monthly']]
+
+    # Output the discrepancies if there are any
+    if not discrepancies.empty:
+        print("Discrepancies found between yearly and monthly max population values:")
+        print(discrepancies)
+    else:
+        print("No discrepancies found. The yearly population matches the max population observed in the monthly data.")
+
+
+
+def summed_features_post_test(df, df_yearly, columns_to_sum):
+    """
+    Compare the summed feature values from monthly data with the yearly data.
+
+    This function calculates the sum of specified features per year from the monthly data,
+    compares it with the yearly data, and identifies any discrepancies.
+
+    Parameters:
+    df (pd.DataFrame): The monthly data DataFrame containing the features to be summed.
+    df_yearly (pd.DataFrame): The yearly data DataFrame containing the summed features.
+    columns_to_sum (list): List of column names to be summed.
+
+    Returns:
+    None: The function prints out any discrepancies found between the yearly and monthly summed feature values.
+    """
+    
+    # Step 1: Calculate the sum of the specified features per year from the monthly data
+    summed_features_monthly = df.groupby(['pg_id', 'year_id'])[columns_to_sum].sum().reset_index()
+
+    # Step 2: Compare the yearly data with the recalculated sums
+    comparison = pd.merge(df_yearly[['pg_id', 'year_id'] + columns_to_sum],
+                          summed_features_monthly,
+                          on=['pg_id', 'year_id'],
+                          suffixes=('_yearly', '_monthly'))
+
+    # Step 3: Identify discrepancies
+    discrepancies = {}
+    for column in columns_to_sum:
+        discrepancies[column] = comparison[comparison[f'{column}_yearly'] != comparison[f'{column}_monthly']]
+
+    # Output the discrepancies if there are any
+    for column, discrepancy in discrepancies.items():
+        if not discrepancy.empty:
+            print(f"Discrepancies found between yearly and monthly summed values for {column}:")
+            print(discrepancy)
+        else:
+            print(f"No discrepancies found for {column}. The yearly sums match the sums observed in the monthly data.")
+
+
+
+def aggregate_monthly_to_yearly(df, columns_to_sum = ['sb_best', 'ns_best', 'os_best'], columns_to_average = ['pop_gpw_sum'], columns_time_invariant = ['row', 'col'], columns_to_group_on = ['pg_id', 'year_id'], columns_other = ['c_id']):
+    
+    """
+    Aggregates a dataset from monthly to yearly.
+    
+    Parameters:
+    - df (pd.DataFrame): The data as a pandas DataFrame. Must contain 'pg_id', 'year_id', and 'month_id' columns.
+    - columns_to_sum (list of str): List of column names to sum up.
+    - columns_to_average (list of str): List of column names to average.
+    - columns_time_invariant (list of str): List of column names that are time-invariant.
+    - columns_to_group_on (list of str): List of columns to group by for aggregation.
+    - columns_other (list of str): List of columns to handle as additional attributes, e.g., c_id.
     
     Returns:
-    pd.DataFrame: Data aggregated at the yearly level.
+    - pd.DataFrame: Data aggregated at the yearly level.
     
     Raises:
-    ValueError: If required columns are missing.
+    - ValueError: If required columns are missing.
     """
 
    # # Check if the input DataFrame is empty
-    expected_columns = ['pg_id', 'year_id', 'c_id', 'col', 'row', 'sb_best', 'ns_best', 'os_best', 'pop_gpw_sum']
-    required_columns = {'pg_id', 'year_id', 'month_id'}
+    expected_columns = columns_to_group_on + columns_other + columns_time_invariant + columns_to_sum + columns_to_average #['pg_id', 'year_id', 'c_id', 'col', 'row', 'sb_best', 'ns_best', 'os_best', 'pop_gpw_sum']
+    required_columns = columns_to_group_on + ['month_id'] #{'pg_id', 'year_id', 'month_id'}
 
     # pre-test
     aggregate_monthly_to_yearly_pre_test(df, expected_columns, required_columns)
 
-    # Columns to group by
-    grouping_columns = ['pg_id', 'year_id']
     
-    # Columns to sum
-    columns_to_sum = ['sb_best', 'ns_best', 'os_best', 'pop_gpw_sum']
+    # Aggregation functions
+    aggregation_functions = {col: 'sum' for col in columns_to_sum}
+    aggregation_functions.update({col: 'mean' for col in columns_to_average})
     
-    # Group by 'pg_id' and 'year_id', summing the specified columns
-    df_yearly_summed = df.groupby(grouping_columns)[columns_to_sum].sum().reset_index()
+    # Group the data and perform aggregations
+    grouped_df = df.groupby(columns_to_group_on).agg(aggregation_functions).reset_index()
     
-    # Identify columns to keep by excluding the columns to sum, grouping columns, and 'month_id'
-    columns_to_keep = [col for col in df.columns if col not in columns_to_sum + grouping_columns + ['month_id']]
-
-    # Get the first occurrence of the columns to keep since they don't change
-    df_yearly_intact = df.groupby(grouping_columns)[columns_to_keep].first().reset_index()
+    # Handle columns that are time-invariant (keep first instance)
+    for col in columns_time_invariant:
+        if col in df.columns:
+            # Use first() to retain a single representative value per group
+            grouped_df[col] = df.groupby(columns_to_group_on)[col].first().values
     
-    # Merge the summed monthly data with the yearly data
-    df_yearly = pd.merge(df_yearly_summed, df_yearly_intact, on=grouping_columns)
+    # Handle c_id with majority voting
+    if 'c_id' in columns_other:
+        def majority_vote(series):
+            return mode(series)[0][0]
+        
+        grouped_df['c_id'] = df.groupby(columns_to_group_on)['c_id'].apply(majority_vote).values
 
     # Sort the columns according to the order they appear in the list of expected columns
-    df_yearly = df_yearly[expected_columns]
+    grouped_df = grouped_df[expected_columns]
     
     # post-test
-    aggregate_monthly_to_yearly_post_test(df, df_yearly, columns_to_sum)
-
-    return df_yearly
-
-
-# class TestAggregateMonthlyToYearly(unittest.TestCase):
-#     def setUp(self):
-#         # Sample data with true columns
-#         self.df = pd.DataFrame({
-#             'pg_id': [1, 1, 1, 2, 2, 2],
-#             'year_id': [2020, 2020, 2020, 2021, 2021, 2021],
-#             'month_id': [1, 2, 3, 1, 2, 3],
-#             'c_id': [10, 10, 10, 20, 20, 20],
-#             'col': [100, 100, 100, 200, 200, 200],
-#             'row': [1000, 1000, 1000, 2000, 2000, 2000],
-#             'sb_best': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6],
-#             'ns_best': [1.1, 1.2, 1.3, 1.4, 1.5, 1.6],
-#             'os_best': [2.1, 2.2, 2.3, 2.4, 2.5, 2.6],
-#             'pop_gpw_sum': [100, 200, 300, 400, 500, 600]
-#         })
-# 
-#     def test_empty_dataframe(self):
-#         empty_df = pd.DataFrame(columns=self.df.columns)
-#         result_df = aggregate_monthly_to_yearly(empty_df)
-#         expected_df = pd.DataFrame(columns=['pg_id', 'year_id', 'c_id', 'col', 'row', 'sb_best', 'ns_best', 'os_best', 'pop_gpw_sum'])
-# 
-#         # Sort columns before comparison
-#         result_df = result_df.reindex(sorted(result_df.columns), axis=1)
-#         expected_df = expected_df.reindex(sorted(expected_df.columns), axis=1)
-# 
-#         assert_frame_equal(result_df, expected_df)
-# 
-#     def test_non_numeric_monthly_columns(self):
-#         df_non_numeric = self.df.copy()
-#         df_non_numeric['sb_best'] = ['a', 'b', 'c', 'd', 'e', 'f']
-#         with self.assertRaises(TypeError):
-#             aggregate_monthly_to_yearly(df_non_numeric)
-# 
-# if __name__ == '__main__':
-#     unittest.main(argv=[''], exit=False)
+    aggregate_monthly_to_yearly_post_test(df, grouped_df, columns_to_sum)
+    
+    return grouped_df
