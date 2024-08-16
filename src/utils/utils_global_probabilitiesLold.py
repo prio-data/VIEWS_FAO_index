@@ -10,7 +10,7 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("VIEWS_FAO
 from set_paths import setup_project_paths
 setup_project_paths(PATH)
 
-from utils_cumulative_distribution import calculate_global_cumulative_distribution
+from src.utils.utils_p_i import calculate_global_cumulative_distribution
 
 def calculate_global_probabilities(df, value_col, time_col):
     """
@@ -66,5 +66,3 @@ def calculate_global_probabilities(df, value_col, time_col):
     
     return df
 
-
-# unittest... 

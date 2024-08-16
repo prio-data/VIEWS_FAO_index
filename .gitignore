@@ -2,8 +2,8 @@
 *.DS_Store
 *.png
 *.csv
-.DS_Store
-.pyc
+*.DS_Store
+*.pyc
 # add folders to ignore
 StatSheets/
 Tables_For_Timeline_Maps/
@@ -21,3 +21,9 @@ __pycache__/
 #csv files
 *.csv
 *.csv#
+
+# backup files
+*.bak
+
+# exceptions
+!VIEWS_logo.png

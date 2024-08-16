@@ -1,66 +1,86 @@
 import pandas as pd
 import unittest
+import numpy as np
 
-def calculate_return_periods(df, p_i_col, P_i_col):
+def calculate_return_periods_precheck(df_probabilities):
     """
-    Calculate the expected number of time periods and voxels to survey to find at least one voxel with a value greater than or equal to i.
+    Pre-checks for the calculate_return_periods function.
 
     Parameters:
-    df (pd.DataFrame): Dataframe containing values, p_i, and P_i.
-    p_i_col (str): The name of the column containing unit likelihoods (p_i).
-    P_i_col (str): The name of the column containing time unit likelihoods (P_i).
+    df_probabilities (pd.DataFrame): A DataFrame containing the probabilities.
 
     Returns:
-    pd.DataFrame: The original dataframe with added columns for time unit return periods (E_i) and unit return periods (E_{i}^{voxels}).
+    bool: True if all pre-checks pass, raises ValueError otherwise.
     """
-    # Check if required columns exist in the dataframe
-    if p_i_col not in df.columns or P_i_col not in df.columns:
-        raise ValueError(f"Columns {p_i_col} and/or {P_i_col} not found in dataframe")
-
-    # Infer value_col by removing the '_unit_likelihood' suffix from p_i_col
-    value_col = p_i_col.replace("_unit_likelihood", "")
-
-    # If the value_col ends on "_country" we need to remove that as well
-    if value_col.endswith("_country"):
-        value_col = value_col.replace("_country", "")
-        suffix = "_country"
-    else:
-        suffix = ""
-
-    # Calculate E_i = 1 / P_i
-    df[f'{value_col}_time_unit_return_period{suffix}'] = df[P_i_col].apply(lambda x: 1 / x if x != 0 else float('inf'))
+    # Check if the DataFrame is empty
+    if df_probabilities.empty:
+        raise ValueError("The input DataFrame is empty.")
     
-    # Calculate E_{i}^{voxels} = 1 / p_i
-    df[f'{value_col}_unit_return_period{suffix}'] = df[p_i_col].apply(lambda x: 1 / x if x != 0 else float('inf'))
+    # Check if the required columns are present
+    required_columns = ['p_i', 'P_i']
+    for column in required_columns:
+        if column not in df_probabilities.columns:
+            raise ValueError(f"Missing required column: {column}")
     
-    return df
+    # Check if the probabilities are within the valid range (0, 1]
+    if not ((df_probabilities['p_i'] > 0) & (df_probabilities['p_i'] <= 1)).all():
+        raise ValueError("Values in 'p_i' must be within the range (0, 1].")
+    if not ((df_probabilities['P_i'] > 0) & (df_probabilities['P_i'] <= 1)).all():
+        raise ValueError("Values in 'P_i' must be within the range (0, 1].")
+    
+    return True
 
-#
-#class TestCalculateReturnPeriods(unittest.TestCase):
-#
-#    def setUp(self):
-#        # Sample dataframe for testing
-#        self.df = pd.DataFrame({
-#            'value_unit_likelihood': [0.1, 0.2, 0.0, 0.5],
-#            'value_time_unit_likelihood': [0.05, 0.1, 0.2, 0.0]
-#        })
-#
-#    def test_calculate_return_periods(self):
-#        result_df = calculate_return_periods(self.df, 'value_unit_likelihood', 'value_time_unit_likelihood')
-#        expected_time_unit_return_period = [20.0, 10.0, 5.0, float('inf')]
-#        expected_unit_return_period = [10.0, 5.0, float('inf'), 2.0]
-#        
-#        self.assertTrue((result_df['value_time_unit_return_period'] == expected_time_unit_return_period).all())
-#        self.assertTrue((result_df['value_unit_return_period'] == expected_unit_return_period).all())
-#
-#    def test_missing_columns(self):
-#        with self.assertRaises(ValueError):
-#            calculate_return_periods(self.df, 'missing_col', 'value_time_unit_likelihood')
-#
-#    def test_zero_values(self):
-#        result_df = calculate_return_periods(self.df, 'value_unit_likelihood', 'value_time_unit_likelihood')
-#        self.assertEqual(result_df['value_time_unit_return_period'][3], float('inf'))
-#        self.assertEqual(result_df['value_unit_return_period'][2], float('inf'))
-#
-#if __name__ == '__main__':
-#    unittest.main()
+def calculate_return_periods_postcheck(df_probabilities):
+    """
+    Post-checks for the calculate_return_periods function.
+
+    Parameters:
+    df_probabilities (pd.DataFrame): A DataFrame containing the probabilities and return periods.
+
+    Returns:
+    bool: True if all post-checks pass, raises ValueError otherwise.
+    """
+    # Check if the return periods are positive
+    if not (df_probabilities['e_i'] > 0).all():
+        raise ValueError("Values in 'e_i' must be positive.")
+    if not (df_probabilities['E_i'] > 0).all():
+        raise ValueError("Values in 'E_i' must be positive.")
+    
+    return True
+
+def calculate_return_periods(probabilities_df):
+    """
+    Calculate return periods for given probabilities.
+
+    This function calculates the return periods for individual probabilities (p_i) and cumulative probabilities (P_i).
+    The return period is defined as the inverse of the probability.
+
+    Parameters:
+    probabilities_df (pd.DataFrame): A DataFrame containing the probabilities with columns 'p_i' and 'P_i'.
+
+    Returns:
+    pd.DataFrame: The input DataFrame updated with return periods 'e_i' and 'E_i'.
+                  'e_i' is the return period for individual probabilities.
+                  'E_i' is the return period for cumulative probabilities.
+    """
+    
+    # Perform pre-checks
+    calculate_return_periods_precheck(probabilities_df)
+
+    # Extract individual and cumulative probabilities from the DataFrame
+    p_i = probabilities_df['p_i']
+    P_i = probabilities_df['P_i']
+
+    # Calculate return periods as the inverse of the probabilities
+    e_i = 1 / p_i
+    E_i = 1 / P_i
+
+    # Update the DataFrame with the calculated return periods
+    probabilities_df['e_i'] = e_i
+    probabilities_df['E_i'] = E_i
+
+    # Perform post-checks
+    calculate_return_periods_postcheck(probabilities_df)
+
+    # Return the updated DataFrame
+    return probabilities_df
