@@ -11,8 +11,8 @@ from set_paths import setup_project_paths
 setup_project_paths(PATH)
 
 from utils_get_time_period import get_time_period
-from utils_p_i import calculate_p_i
-from utils_P_i import calculate_P_i
+from utils_small_p_i import calculate_p_i
+from utils_big_P_i import calculate_P_i
 from utils_return_periods import calculate_return_periods
 
 
