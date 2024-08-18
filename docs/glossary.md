@@ -50,9 +50,9 @@ Where $e_i$ represents the expected number of trials (i.e. potential events, e.g
 
 $P_i$ reflects the likelihood of observing at least one event within the spatial area during a given time period, accounting for the number of potential events (grid cells). This normalization by the number of spatial units (e.g. grid cells) ensures that $P_i$ is independent of the size of the area, focusing solely on the likelihood of event occurrence during that time period.
 
-This is in contrast to $p_i$ where a large country will experience more "rare" events than a small country since it contains more potential events each time period. As such, $P_i$ serves as a time-based measure, representing the likelihood of observing an event in any given period (e.g., month) regardless of the size of the spatial area. If $p_i$ is the event probability and num_grid_cells is the total number of grid cells, we have:
+This is in contrast to $p_i$ where a large country will experience more "rare" events than a small country since it contains more potential events each time period. As such, $P_i$ serves as a time-based measure, representing the likelihood of observing an event in any given period (e.g., month) regardless of the size of the spatial area. If $p_i$ is the event probability and $n^{pg}$ is the total number of PRIO grid cells, we have:
 
-**Formula:** $$P_i = 1 - (1 - p_i)^{\text{num\_grid\_cells}}$$
+**Formula:** $$P_i = 1 - (1 - p_i)^{n^{pg}}$$
 
 Where $P_i$ is the probability of observing at least one event of the specified magnitude across the grid cells (trials), assuming each grid cell acts independently. When num_grid_cells = 1, the probability of observing at least one event $P_i$​ is simply equal to the event probability $p_i$​, as there is only one trial (one grid cell) to consider.
 
