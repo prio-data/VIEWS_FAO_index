@@ -19,7 +19,19 @@ The Python Coding Style Guide is a vital resource for our development team. It s
 - Use clear and consistent naming conventions:
     - Use snake_case for variable and function names, e.g., `predict_proba()`.
     - Use CamelCase for class names, e.g., `ViewsLoader`.
-    - Use UPPERCASE for constants, e.g., `LEARNING_RATE`.
+    - Use UPPERCASE for constants, e.g., `LEARNING_RATE`, `PATH`
+    - Use descriptive names for functions and classes. If you have a hard time coming up with a descriptive name it might indicate that the function or class is doing too much or handling tasks that are too diverse at once.
+
+Certainly! Here's an entry on the use of capital and lowercase letters in script files:
+
+### **Naming Script Files**
+
+- **Use Descriptive Script Names**: Choose descriptive names for your script files that clearly convey their purpose. If a script name seems vague or overly broad, it might indicate that the script is doing too much or handling tasks that are too diverse at once. In such cases, consider refactoring the script into smaller, more focused modules, each with a clear and specific purpose. This approach not only improves maintainability but also enhances code readability and ease of use.
+
+- **Avoid Using Similar Names Differing Only by Case:** When naming script files, avoid creating filenames that differ only by capitalization (e.g., `utils_P_i.py` vs. `utils_p_i.py`). Although some operating systems, like Linux, differentiate between these filenames, others, like iOS, do not (by default). This lack of differentiation can lead to significant issues, such as accidental overwriting, unexpected behavior, or even a frustrating "death loop" where the system continuously fails to distinguish between the two files.
+
+- **Consistency is Key:** Always use a consistent naming convention for your script files: stick with lowercase letters separated by underscores (snake_case) for file names, as this is the most portable and least error-prone convention across different operating systems.
+
 
 ### **String Quotes**
 
