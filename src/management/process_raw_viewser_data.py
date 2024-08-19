@@ -40,7 +40,7 @@ if __name__ == '__main__':
     #df_monthly.to_pickle(PATH_PROCESSED / "df_monthly.pkl")  
     #df_yearly.to_pickle(PATH_PROCESSED / "df_yearly.pkl")
 
-    fatality_features = ['sb_best', 'ns_best', 'os_best']
+    fatality_features = ['sb_best', 'ns_best', 'os_best', 'total_best']
     
     # monthly data    
     # Initialize the DataFrame
