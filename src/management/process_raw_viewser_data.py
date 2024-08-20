@@ -16,6 +16,8 @@ from utils_annual_aggregation import aggregate_monthly_to_yearly
 from utils_feature_eng_per_100k import feature_eng_fat_per_100k
 from utils_process_data_country_wise import process_data_country_wise
 from utils_feature_eng_per_100k_country_wise import get_per_100k_features_country_wise
+from utils_update_df_with_binned_return_periods import process_binning
+
 
 if __name__ == '__main__':
 
@@ -60,7 +62,9 @@ if __name__ == '__main__':
     print("Processing the yearly data for the return periods") 
     for feature in fatality_features:
         df_yearly_global_country_level = process_data_country_wise(df_yearly_global_country_level, feature)
-    
+
+    df_monthly_global_country_level, _ = process_binning(df_monthly_global_country_level)
+    df_yearly_global_country_level, _ = process_binning(df_yearly_global_country_level)
 
     # save the data
     print("Saving the data as pkl and csv")
