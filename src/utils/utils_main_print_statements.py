@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+import subprocess
 
 PATH = Path(__file__)
 sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("VIEWS_FAO_index")+1]]) / "src/utils"))  
@@ -91,30 +92,111 @@ def print_directory_contents():
     print("=================================")
 #    print("\nEnd of main.py")
 
+
 def print_library_versions():
 
-    import sys        
-    import pandas as pd
-    import numpy as np
-    import scipy
-    from pathlib import Path
-    import matplotlib
-    import seaborn
-    import subprocess
-    import fuzzywuzzy
-    import viewser
+    """
+    This script checks the versions of various libraries used in the project.
+    
+    It attempts to import each library and prints the version if the import is successful.
+    If the import fails, it prints an error message and indicates that the library is uninstalled.
+    
+    Libraries checked:
+    - sys
+    - pandas
+    - numpy
+    - scipy
+    - pathlib
+    - matplotlib
+    - seaborn
+    - fuzzywuzzy
+    - viewser
+    
+    Usage:
+    Run this script to see the versions of the installed libraries.
+    """
 
+    try:
+        import sys
+        sys_version = sys.version
+    except ImportError as e:
+        sys_version = "uninstalled"
+        print(f"Failed to import sys: {e}")
+    
+    try:
+        import pandas as pd
+        pd_version = pd.__version__
+    except ImportError as e:
+        pd_version = "uninstalled"
+        print(f"Failed to import pandas: {e}")
+    
+    try:
+        import numpy as np
+        np_version = np.__version__
+    except ImportError as e:
+        np_version = "uninstalled"
+        print(f"Failed to import numpy: {e}")
+    
+    try:
+        import scipy
+        scipy_version = scipy.__version__
+    except ImportError as e:
+        scipy_version = "uninstalled"
+        print(f"Failed to import scipy: {e}")
+    
+    try:
+        from pathlib import Path
+        pathlib_version = "installed"
+    except ImportError as e:
+        pathlib_version = "uninstalled"
+        print(f"Failed to import pathlib: {e}")
+    
+    try:
+        import matplotlib
+        matplotlib_version = matplotlib.__version__
+    except ImportError as e:
+        matplotlib_version = "uninstalled"
+        print(f"Failed to import matplotlib: {e}")
+    
+    try:
+        import seaborn
+        seaborn_version = seaborn.__version__
+    except ImportError as e:
+        seaborn_version = "uninstalled"
+        print(f"Failed to import seaborn: {e}")
+    
+    try:
+        import fuzzywuzzy
+        fuzzywuzzy_version = fuzzywuzzy.__version__
+    except ImportError as e:
+        fuzzywuzzy_version = "uninstalled"
+        print(f"Failed to import fuzzywuzzy: {e}")
+    
+    try:
+        import viewser
+        try:
+            viewser_version = subprocess.check_output(["viewser", "--version"], text=True).strip()
+        except subprocess.CalledProcessError as e:
+            viewser_version = "installed, but failed to get version"
+            print(f"Failed to get viewser version: {e}")
+    except ImportError as e:
+        viewser_version = "uninstalled"
+        print(f"Failed to import viewser: {e}")
+    
+    print(f"viewser version: {viewser_version}")
+    
     # Print the versions of the libraries used in the project
-    print("\nLibrary versions known to work:")
+    print("\nYour library versions versus tested library versions known to work:")
     print("=================")
-    print(f"Python version: {sys.version}")
-    print(f"pandas version: {pd.__version__}")
-    print(f"numpy version: {np.__version__}")
-    print(f"scipy version: {scipy.__version__}")
-    print(f'pathlib version: {Path.__version__}')
-    print(f"matplotlib version: {matplotlib.__version__}")
-    print(f"seaborn version: {seaborn.__version__}")
-    print(f"subprocess version: {subprocess.__version__}")
-    print(f"fuzzywuzzy version: {fuzzywuzzy.__version__}")
-    print(f"viewser version: {viewser.__version__}")
+    print(f"Python version: {sys_version} (Tested: 3.11.7)")
+    print(f"pandas version: {pd_version} (Tested: 2.2.2)")
+    print(f"numpy version: {np_version} (Tested: 1.26.4)")
+    print(f"scipy version: {scipy_version} (Tested: 1.12.0)")
+    print(f"pathlib version: {pathlib_version} (Tested: installed)")
+    print(f"matplotlib version: {matplotlib_version} (Tested: 3.8.0)")
+    print(f"seaborn version: {seaborn_version} (Tested: 0.13.2)")
+    print(f"fuzzywuzzy version: {fuzzywuzzy_version} (Tested: 0.18.0)")
+    print(f"viewser version: {viewser_version} (Tested: 6.5.2)")
     print("=================")
+
+

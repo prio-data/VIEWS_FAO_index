@@ -8,37 +8,34 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("VIEWS_FAO
 from set_paths import setup_project_paths, get_data_paths
 setup_project_paths(PATH)
 
-from utils_main_print_statements import print_main_title_head, print_directory_contents
+from utils_main_print_statements import print_main_title_head, print_directory_contents, print_library_versions
 from utils_main_prompts import prompt_user
-
-
-# The main issue right now is that m computer I use two differant conda environments, one for the viewser dataloader and one process the data.
-# And there is an issue if I try to use the VIEWSER environment for both
-# The issue pops up doing the yearly aggreation and has somethign to do with the mode used to decided which country a pgm belongs to in years where the country has changed.
-# I suspect that the issue pertains to pandas since it is a groupby stituation where it happens.
-# Or scipy as that is were I get the mode from. 
-
-# base conda environment: 
-# pandas 2.2.1
-# scipy 1.10.1
-
-# viewser_2024 conda environment:
-# pandas 1.5.3
-# scipy 1.11.4
 
 def main():
 
     # Print the main title head
     print_main_title_head(version="0.1.0", last_update="15-08-2024")
 
+    while True:
+        print("\nPlease choose an option:")
+        print("1. Print the contents of the data directories")
+        print("2. Download and process data")
+        print("3. Print tested library versions")
+        print("4. Exit")
 
-    # Print the contents of the data directories
-    print_directory_contents()
+        choice = input("Enter your choice (1-4): ")
 
-
-    # Prompt the user for input
-    prompt_user()
-
+        if choice == '1':
+            print_directory_contents()
+        elif choice == '2':
+            prompt_user()
+        elif choice == '3':
+            print_library_versions()
+        elif choice == '4':
+            print("Exiting...")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
 if __name__ == '__main__':
     main()
