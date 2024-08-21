@@ -10,7 +10,22 @@ setup_project_paths(PATH)
 
 from utils_main_print_statements import print_main_title_head, print_directory_contents
 from utils_main_prompts import prompt_user
-    
+
+
+# The main issue right now is that m computer I use two differant conda environments, one for the viewser dataloader and one process the data.
+# And there is an issue if I try to use the VIEWSER environment for both
+# The issue pops up doing the yearly aggreation and has somethign to do with the mode used to decided which country a pgm belongs to in years where the country has changed.
+# I suspect that the issue pertains to pandas since it is a groupby stituation where it happens.
+# Or scipy as that is were I get the mode from. 
+
+# base conda environment: 
+# pandas 2.2.1
+# scipy 1.10.1
+
+# viewser_2024 conda environment:
+# pandas 1.5.3
+# scipy 1.11.4
+
 def main():
 
     # Print the main title head
