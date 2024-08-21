@@ -7,8 +7,6 @@ sys.path.insert(0, str(Path(*[i for i in PATH.parts[:PATH.parts.index("VIEWS_FAO
 from set_paths import setup_project_paths, get_data_paths
 setup_project_paths(PATH)
 
-
-
 def print_main_title_head(version="0.1.0", last_update="2024-20-08"):
     pattern = f"""
 
@@ -48,10 +46,10 @@ you can download the data directly from google cloude storage.
 Link at the project's GitHub page.
 
 ---------------------------------------------------------------------
-
 """
     print(pattern)
 
+# would also be nice to list the versions of the various packages used in the project
 
 def list_directory_contents(path, title):
     """
@@ -92,3 +90,31 @@ def print_directory_contents():
     
     print("=================================")
 #    print("\nEnd of main.py")
+
+def print_library_versions():
+
+    import sys        
+    import pandas as pd
+    import numpy as np
+    import scipy
+    from pathlib import Path
+    import matplotlib
+    import seaborn
+    import subprocess
+    import fuzzywuzzy
+    import viewser
+
+    # Print the versions of the libraries used in the project
+    print("\nLibrary versions known to work:")
+    print("=================")
+    print(f"Python version: {sys.version}")
+    print(f"pandas version: {pd.__version__}")
+    print(f"numpy version: {np.__version__}")
+    print(f"scipy version: {scipy.__version__}")
+    print(f'pathlib version: {Path.__version__}')
+    print(f"matplotlib version: {matplotlib.__version__}")
+    print(f"seaborn version: {seaborn.__version__}")
+    print(f"subprocess version: {subprocess.__version__}")
+    print(f"fuzzywuzzy version: {fuzzywuzzy.__version__}")
+    print(f"viewser version: {viewser.__version__}")
+    print("=================")
