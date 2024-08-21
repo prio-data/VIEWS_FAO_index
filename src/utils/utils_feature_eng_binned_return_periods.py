@@ -100,9 +100,7 @@ def feature_eng_binned_return_periods_pretest(series, bins_types= 'auto', num_bi
     return True
 
 
-
 def feature_eng_binned_return_periods_posttest(series, binned_series, bins_types, num_bins):
-
 
     """
     Post-test the output of the feature_eng_binned_return_periods function.
