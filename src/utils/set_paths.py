@@ -110,6 +110,21 @@ def get_logo_path(PATH) -> Path:
     PATH_LOGOS = PATH_ROOT / "reports/logos"
     return PATH_LOGOS
 
+def get_plot_path(PATH) -> Path:
+    """
+    Extracts and returns the path to the plots directory within the project.
+
+    Args:
+        PATH (Path): The base path, typically the path of the script invoking this function (e.g., `PATH = Path(__file__)`).
+
+    Returns:
+        Path: The path to the plots directory within the project.
+    """
+    PATH_ROOT = setup_root_paths(PATH)
+    PATH_PLOTS = PATH_ROOT / "reports/plots"
+    return PATH_PLOTS
+
+
 def get_data_paths(PATH):
 
     """

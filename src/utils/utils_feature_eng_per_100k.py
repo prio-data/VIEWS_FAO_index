@@ -105,7 +105,7 @@ def feature_eng_fat_per_100k(df):
     n_pop = 100000
 
     # Replace zero population values with NaN using the recommended method
-    df.replace({'pop_gpw_sum': {0: np.nan}}, inplace=True)
+    df.replace({'pop_gpw_sum': {0: np.nan}}, inplace=True) # <------------------------------------------------
 
     # Fatalities per 100,000 population for each type of conflict
     df['fatalities_per_100k'] = (df['total_best'] / df['pop_gpw_sum']) * n_pop
@@ -116,8 +116,19 @@ def feature_eng_fat_per_100k(df):
     # Fill NaNs with 0 - NaN values are created when dividing by 0 population, so it makes sense to fill them with 0
     df.fillna(0, inplace=True)
 
-    # Test that all the new columns are created and have valid values:
+    # contry specific population normalization
+#    country_pop = df.groupby('c_id')['pop_gpw_sum'].transform('sum')
+#    country_total_best = df.groupby('c_id')['total_best'].transform('sum')
+#    country_sb_best = df.groupby('c_id')['sb_best'].transform('sum')
+#    country_ns_best = df.groupby('c_id')['ns_best'].transform('sum')
+#
+#    df['fatalities_per_100k_country'] = (country_total_best / country_pop) * n_pop
+#    df['sb_per_100k_country'] = (country_sb_best / country_pop) * n_pop
+#    df['ns_per_100k_country'] = (country_ns_best / country_pop) * n_pop
+#
+#    # Test that all the new columns are created and have valid values:
     new_columns = ['fatalities_per_100k', 'sb_per_100k', 'ns_per_100k', 'os_per_100k']
+#    new_columns_country = ['fatalities_per_100k_country', 'sb_per_100k_country', 'ns_per_100k_country'] 
     
     # Checks
     feature_eng_fat_per_100k_postcheck(df, new_columns)
