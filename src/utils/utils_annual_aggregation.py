@@ -20,8 +20,6 @@ def aggregate_monthly_to_yearly_pre_test(df, expected_columns, required_columns)
     TypeError: If any of the columns are not numeric.
     """
 
-
-    
     # Check that the required columns in the list are present in the DataFrame
     if not set(required_columns).issubset(df.columns):
         raise ValueError("Input DataFrame is missing one or more required columns.")
@@ -246,7 +244,14 @@ def aggregate_monthly_to_yearly(df, columns_to_sum = ['sb_best', 'ns_best', 'os_
     # Handle c_id with majority voting
     if 'c_id' in columns_other:
         def majority_vote(series):
-            return mode(series)[0][0]
+            result = mode(series)
+            try:
+                return result[0]  # For newer versions of scipy
+            
+            except AttributeError:
+                return result[0][0]  # For older versions of scipy
+            
+            #return mode(series)[0][0]
         
         grouped_df['c_id'] = df.groupby(columns_to_group_on)['c_id'].apply(majority_vote).values
 
