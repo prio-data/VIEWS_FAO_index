@@ -18,11 +18,11 @@ setup_project_paths(PATH)
 
 from utils_date_index import calculate_date_from_index 
 from utils_get_country_names_by_ids import get_country_names_by_ids
+from utils_get_time_period import get_time_period
 
 
 
-
-def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1)):
+def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1), force_color = None, save_plot = False, PATH_PLOT = None):
     """
     Plots time series data for a given feature and multiple countries.
 
@@ -60,13 +60,15 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
     # you jhave a general function for this now -------------------------------------------------
 
     # Check which time unit is used in the data by seeing if month_id or year_id is in the columns
-    if 'month_id' in df.columns:
-        time_period = 'month_id'
-    elif 'year_id' in df.columns:
-        time_period = 'year_id'
-    else:
-        raise ValueError('Time unit not found in the data. Please check the data.')
-    
+   # if 'month_id' in df.columns:
+   #     time_period = 'month_id'
+   # elif 'year_id' in df.columns:
+   #     time_period = 'year_id'
+   # else:
+   #     raise ValueError('Time unit not found in the data. Please check the data.')
+   # 
+    time_period = get_time_period(df)
+
     # --------------------------------------------------------------------------------------------
 
     plt.figure(figsize=figsize)
@@ -85,21 +87,44 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
         if time_periods is not None:
             df_filtered = df_filtered[df_filtered[time_period].isin(time_periods)]
 
-        # Aggregate data by summing the feature over time periods
-        df_aggregated = df_filtered.groupby(time_period)[feature].sum().reset_index()
+        # if the feature contains per_100k_pop, average the feature
+        if 'per_100k' in feature:
+            if not '_country' in feature:
+                print(f"This plot aggregates data by either averaging or summing the country-specific feature (in this case {feature}) over the given time period (in this case {time_period}).")
+                print(f"For features normalized per 100k population, ensure you use the country-specific version of the feature to get accurate data in the plot.")
+                print(f"Summing or averaging the pg (PRIO grid) level feature '{feature}' (e.i. the one without '_country' in the name) will not give accurate results in this plot.")
+                print(f"Feature '{feature}' should end with '_country' to ensure correct plotting. If this feature is not in your data,, please download the data again.")
+                return
 
-        # Assert that the contry-time_period data hase been summed correctly (approximate equality)
-        assert np.allclose(df_filtered[feature].sum(), df_aggregated[feature].sum(), rtol=1e-5), 'Data aggregation failed.'
+            else:
+                df_aggregated = df_aggregated = df_filtered.groupby(time_period)[feature].mean().reset_index()
+
+                # Assert that the contry-time_period data hase been averaged correctly (approximate equality)
+                assert np.allclose(df_filtered[feature].mean(), df_aggregated[feature].mean(), rtol=1e-5), 'Data aggregation failed.'
+
+        # Aggregate data by summing the feature over time periods
+        else:
+            df_aggregated = df_filtered.groupby(time_period)[feature].sum().reset_index()
+
+            # Assert that the contry-time_period data hase been summed correctly (approximate equality)
+            assert np.allclose(df_filtered[feature].sum(), df_aggregated[feature].sum(), rtol=1e-5), 'Data aggregation failed.'
 
         # country name:
         country_dict = get_country_names_by_ids([country_id])
         country_name = list(country_dict.values())[0]
 
+        # if force color is provided, use this color for all countries
+        if force_color:
+            color = force_color
+
+        else:
+            color = palette[idx]
+
         # Plotting
         plt.plot(df_aggregated[time_period], df_aggregated[feature], marker=markers[idx % len(markers)], linestyle='-', 
-                 label=f'Country: {country_name} (ID: {country_id})', color=palette[idx])
+                 label=f'Country: {country_name} (ID: {country_id})', color=color)
 
-    plt.title(f'Time Series Plot for {feature}', fontsize=16)
+    plt.title(f'Time Series ({time_period.split("_")[0]}ly) Plot for {feature}', fontsize=16)
     plt.xlabel('Time Period', fontsize=14)
     plt.ylabel(feature, fontsize=14)
     plt.grid(True, linestyle='--', alpha=0.7)
@@ -147,6 +172,13 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
     plt.gca().add_artist(ab)
 
     plt.tight_layout()
+
+    if save_plot:
+        if PATH_PLOT:
+            plt.savefig(f'{PATH_PLOT}.png', dpi=300, bbox_inches='tight')
+        else:
+            raise ValueError("Please provide a path to save the plot")
+
     plt.show()
 
 
@@ -346,6 +378,9 @@ def plot_contry_period_map(df, country_id, feature, periods, figsize=(16, 8), ma
 
     # Adjust layout to make space for the colorbar
     fig.subplots_adjust(bottom=0.35, top= 0.9, hspace=0.5, wspace=0.2)
+
+    if save_plot:
+        plt.savefig(f'{PATH}.png', dpi=300, bbox_inches='tight')
 
     plt.show()
 
