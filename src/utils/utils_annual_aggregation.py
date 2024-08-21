@@ -20,8 +20,6 @@ def aggregate_monthly_to_yearly_pre_test(df, expected_columns, required_columns)
     TypeError: If any of the columns are not numeric.
     """
 
-
-    
     # Check that the required columns in the list are present in the DataFrame
     if not set(required_columns).issubset(df.columns):
         raise ValueError("Input DataFrame is missing one or more required columns.")
