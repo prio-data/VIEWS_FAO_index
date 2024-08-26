@@ -21,7 +21,7 @@ from utils_get_country_names_by_ids import get_country_names_by_ids
 from utils_get_time_period import get_time_period
 
 
-def plot_contry_period_map(df, country_id, feature, periods, figsize=(16, 8), marker_size=64, PATH=PATH):
+def plot_country_period_map(df, country_id, feature, periods, figsize=(16, 8), marker_size=64, PATH=PATH):
 
     # Determine the number of rows and columns for subplots
     num_periods = len(periods)
