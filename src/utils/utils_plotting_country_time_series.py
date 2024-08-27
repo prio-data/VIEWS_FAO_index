@@ -20,23 +20,7 @@ from utils_date_index import calculate_date_from_index
 from utils_get_country_names_by_ids import get_country_names_by_ids
 from utils_get_time_period import get_time_period
 
-
-
-def plot_country_time_series(df, country_ids, feature, time_periods=None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), legend_placement=(0.8, 1), force_color = None, save_plot = False, PATH_PLOT = None):
-    """
-    Plots time series data for a given feature and multiple countries.
-
-    Parameters:
-    df (pd.DataFrame): DataFrame containing the data.
-    country_ids (list): List of country IDs to filter the data.
-    feature (str): The feature/column to plot.
-    time_periods (list, optional): List of time periods to plot. Defaults to all periods.
-    figsize (tuple, optional): Figure size for the plot. Defaults to (12, 8).
-
-    Returns:
-    None
-    """
-    # This is a pre-test ----------------------------------------------------------------------
+def plot_country_time_series_precheck(df, country_ids):
 
     # Check that df is a pandas DataFrame and that it is not empty
     if not isinstance(df, pd.DataFrame) or df.empty:
@@ -54,6 +38,64 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
     missing_ids = [cid for cid in country_ids if cid not in df['c_id'].unique()]
     if missing_ids:
         raise ValueError(f'Country IDs not found in the data: {missing_ids}')
+
+
+def place_logo(logo_placement, logo_size, PATH):
+
+    """
+    Places a logo on a given axis in a plot.
+
+    Parameters:
+    ax (matplotlib.axes.Axes): The axis on which to place the logo.
+    logo_placement (tuple): Coordinates for logo placement in the axis, specified as a fraction of the axis size (e.g., (0.9, 0.85)).
+    logo_size (float): The size of the logo, specified as a zoom factor.
+    PATH (str): Path to the directory containing the logo.
+
+    Raises:
+    FileNotFoundError: If the logo file is not found in the specified PATH.
+
+    Returns:
+    None
+    """
+
+    # now insert our logo under the legende - first check the path if 
+    PATH_logo = get_logo_path(PATH) / "VIEWS_logo.png"
+
+    #only plot if logo is available other wise just show the plot but print a warning
+    if not Path(PATH_logo).is_file():
+
+        print("Logo not found, please make sure the logo is available in the logos folder")
+
+    else:
+
+        # Load the image
+        image = plt.imread(PATH_logo)
+
+        # Create OffsetImage and AnnotationBbox
+        imagebox = OffsetImage(image, zoom=logo_size, alpha=0.7)
+        ab = AnnotationBbox(imagebox, logo_placement, frameon=False, xycoords='axes fraction', zorder=3)
+
+    # Add AnnotationBbox to the plot
+    plt.gca().add_artist(ab)
+
+
+def plot_country_time_series(df, country_ids, feature, time_periods=None, manual_title = None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), logo_size = 0.6, legend_placement=(0.8, 1), force_color = None, save_plot = False, PATH_PLOT = None):
+    """
+    Plots time series data for a given feature and multiple countries.
+
+    Parameters:
+    df (pd.DataFrame): DataFrame containing the data.
+    country_ids (list): List of country IDs to filter the data.
+    feature (str): The feature/column to plot.
+    time_periods (list, optional): List of time periods to plot. Defaults to all periods.
+    manual_title (str, optional): Manual title for the plot. Defaults to None in which case the title is generated automatically.
+    figsize (tuple, optional): Figure size for the plot. Defaults to (12, 8).
+
+    Returns:
+    None
+    """
+    # This is a pre-test ----------------------------------------------------------------------
+    plot_country_time_series_precheck(df, country_ids)
 
     time_period = get_time_period(df)
 
@@ -110,7 +152,14 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
         plt.plot(df_aggregated[time_period], df_aggregated[feature], marker=markers[idx % len(markers)], linestyle='-', 
                  label=f'Country: {country_name} (ID: {country_id})', color=color)
 
-    plt.title(f'Time Series ({time_period.split("_")[0]}ly) Plot for {feature}', fontsize=16)
+
+    if manual_title:
+        plt.title(manual_title, fontsize=16)
+    
+    else:
+        plt.title(f'Time Series ({time_period.split("_")[0]}ly) Plot for {feature}', fontsize=16)
+    
+    
     plt.xlabel('Time Period', fontsize=14)
     plt.ylabel(feature, fontsize=14)
     plt.grid(True, linestyle='--', alpha=0.7)
@@ -137,26 +186,8 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, figsiz
         plt.xticks(df_aggregated[time_period], [i for i in df_aggregated[time_period]], rotation=45)
         
 
-    # now insert our logo under the legende - first check the path if 
-    PATH_logo = get_logo_path(PATH) / "VIEWS_logo.png"
-
-    #only plot if logo is available other wise just show the plot but print a warning
-    if not Path(PATH_logo).is_file():
-
-        print("Logo not found, please make sure the logo is available in the logos folder")
-
-    else:
-
-        # Load the image
-        image = plt.imread(PATH_logo)
-
-        # Create OffsetImage and AnnotationBbox
-        imagebox = OffsetImage(image, zoom=0.3, alpha=0.7)
-        ab = AnnotationBbox(imagebox, logo_placement, frameon=False, xycoords='axes fraction', zorder=3)
-
-    # Add AnnotationBbox to the plot
-    plt.gca().add_artist(ab)
-
+    place_logo(logo_placement, logo_size, PATH)
+    
     plt.tight_layout()
 
     if save_plot:
