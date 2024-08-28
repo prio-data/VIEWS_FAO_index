@@ -44,15 +44,19 @@ def prompt_user_dynamic_precheck():
 
         # summary message
         print("One or more paths are not dynamic and might be hard-coded. Please check your setup.")
-        return
+        return False    # If any path does not exist, return False
     
     # confirming that paths are dynamic
-    if paths_exist:
+    print("Paths to the scripts are dynamic.")
+    return True  # Explicitly return True if both paths exist
+    
+    # confirming that paths are dynamic
+  #  if paths_exist:
         # check if the paths are dynamic
-        print("Paths to the scripts are dynamic.")
-    else:
-        print("Paths to the scripts are not dynamic and might be hard-coded.")
-        return      
+  #      print("Paths to the scripts are dynamic.")
+  #  else:
+      #  print("Paths to the scripts are not dynamic and might be hard-coded.")
+      #  return paths_exist     # returning the result of the check
 
 
 def prompt_user_dynamic():
@@ -64,17 +68,19 @@ def prompt_user_dynamic():
     if user_response == 'y' or user_response == 'yes':
         print("Running the scripts to download and process data...")
 
-        # Dynamically construct the paths
-        project_root = setup_root_paths(PATH)
-        first_script = project_root / "src/dataloaders/get_full_base.py"
-        second_script = project_root / "src/management/process_raw_viewser_data.py"
-
         # Checking that the paths are dynamic
         if not prompt_user_dynamic_precheck():
             print("Paths are not dynamic. Exiting the program.")
             return
         else:
             print("Paths are dynamic. Proceeding with script execution.")
+
+        # Dynamically construct the paths
+        project_root = setup_root_paths(PATH)
+        first_script = project_root / "src/dataloaders/get_full_base.py"
+        second_script = project_root / "src/management/process_raw_viewser_data.py"
+
+        
 
         # Run the first script using subprocess
         subprocess.run([sys.executable, str(first_script)])
