@@ -79,7 +79,7 @@ def place_logo(logo_placement, logo_size, PATH):
     plt.gca().add_artist(ab)
 
 
-def plot_country_time_series(df, country_ids, feature, time_periods=None, manual_title = None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), logo_size = 0.6, legend_placement=(0.8, 1), force_color = None, save_plot = False, PATH_PLOT = None):
+def plot_country_time_series(df, country_ids, feature, time_periods=None, manual_title = None, manual_ylabel = None, figsize=(12, 8), PATH=PATH, logo_placement = (0.9, 0.85), logo_size = 0.6, legend_placement=(0.8, 1), force_color = None, save_plot = False, PATH_PLOT = None):
     """
     Plots time series data for a given feature and multiple countries.
 
@@ -155,13 +155,17 @@ def plot_country_time_series(df, country_ids, feature, time_periods=None, manual
 
     if manual_title:
         plt.title(manual_title, fontsize=16)
-    
+
     else:
         plt.title(f'Time Series ({time_period.split("_")[0]}ly) Plot for {feature}', fontsize=16)
     
-    
+    if manual_ylabel:
+        plt.ylabel(manual_ylabel, fontsize=14)
+
+    else:
+        plt.ylabel(feature, fontsize=14)
+
     plt.xlabel('Time Period', fontsize=14)
-    plt.ylabel(feature, fontsize=14)
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(loc='upper left', bbox_to_anchor=legend_placement, fontsize=12)
     plt.xticks(fontsize=12)
