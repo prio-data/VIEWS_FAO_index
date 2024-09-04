@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+
 from src.utils.universal_functions.FAO_table_formatting.calculate_percentiles import convert_to_float_or_null
 
 def develop_info_dataframe(rp,threshold_value, colors, defined_labels):
@@ -25,6 +26,75 @@ def develop_info_dataframe(rp,threshold_value, colors, defined_labels):
     info_df = pd.DataFrame(data)
     
     return(info_df)
+
+from src.utils.functions_for_graphics.individual_graphics.map_helper.manipulate_tables_for_mapping import provide_values_at_input_return_periods
+
+def generate_and_give_info_dataframe(insurance_table, return_period, value_column, rp_column, cmap=None):
+
+    if return_period == 'Country year':
+
+        default_color_map = {
+            0:  '#d5dbdb',   
+            10: '#377eb8',
+            20: '#e6ab02',
+            50: '#762a83',
+            100: '#b2182b'
+        }
+
+        if cmap is None:
+            color_map = default_color_map
+        else: 
+            color_map = cmap
+    
+        cleaned_thresholds = provide_values_at_input_return_periods(insurance_table, [10,20,50,100], value_column, rp_column) #(insurance_from_E_i, [5,10,20,30], 'percapita_100k', 'Intended Return Period')
+        # Define the thresholds and include 0 and 100000
+        thresholds = [0] + cleaned_thresholds + [100000]
+        return_periods = [0, 10, 20, 50, 100]
+
+        if len(thresholds) - 1 != len(return_periods):
+            raise ValueError("The number of thresholds should be one more than the number of return periods.")
+        
+        labels = ['Below 1 in 10 year', '1 in 10 year',  '1 in 20 year',  '1 in 50 year', '1 in 100 year',]
+
+
+        info_df = develop_info_dataframe(return_periods, thresholds, color_map, labels)
+        return(info_df, color_map)
+
+
+    if return_period == 'Event year':
+
+        default_color_map = {
+                0:  '#d5dbdb',   
+                5: '#4daf4a',
+                10: '#377eb8',
+                20: '#e6ab02',
+                30: '#c51b7d',
+        }
+        if cmap is None:
+            color_map = default_color_map
+        else: 
+            color_map = cmap
+
+        # For E-i---------------------------------------------------------------------------------------------------------------
+        cleaned_thresholds = provide_values_at_input_return_periods(insurance_table, [5,10,20,30], value_column, rp_column)
+
+            #Now we make to make a reference dataframe regardless if there are duplicates:
+            # Define the return periods and their associated color map
+
+        print('This is a critical dataframe:')
+            #----- Define Map Pallete:-------------------------------------------------------------------------------------------
+
+            # Define the thresholds and include 0 and 100000
+        thresholds_to30 = [0] + cleaned_thresholds + [100000]
+        return_periods_to30 = [0, 5, 10, 20, 30]
+
+        if len(thresholds_to30) - 1 != len(return_periods_to30):
+                    raise ValueError("The number of thresholds should be one more than the number of return periods.")
+                
+        labels_to30 = ['Below 1 in 5 year', '1 in 5 year', '1 in 10 year',  '1 in 20 year',  '1 in 30 year']
+
+        info_df_to30 = develop_info_dataframe(return_periods_to30, thresholds_to30, color_map, labels_to30)
+        return(info_df_to30, color_map)
 
 
 def insurance_table(perc_df, orginal_df, percentiles_of_interest, attribute_to_explore='percapita_100k', append_1_value='yes'):
