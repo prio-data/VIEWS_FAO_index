@@ -172,8 +172,12 @@ def insurance_table(perc_df, orginal_df, percentiles_of_interest, attribute_to_e
     collected[attribute_to_explore] = np.floor(collected[attribute_to_explore] * 10) / 10
     collected['Return Period'] = np.floor(collected['Return Period'] * 10) / 10
 
-    collected.loc[collected['Percentile'] == '100', 'Return Period'] = 'Max'
-    collected.loc[collected['Percentile'] == '100', 'Payout Rate'] = 'Max'
+
+    collected.loc[collected['Percentile'] == '100', 'Return Period'] = '--'
+    collected.loc[collected['Percentile'] == '100', 'Payout Rate'] = '--'
+    #Finally, on Sept 05, ViEWS determined to change '100' percentile label to 'Max'.
+    collected.loc[collected['Percentile'] == '100', 'Percentile'] = 'max'
+
     collected['Payout Rate'] = collected['Payout Rate'].fillna('undefined')
 
     return collected

@@ -250,7 +250,7 @@ def aggregation_Country_Year_files(data, country_name, aggregation_unit):
 
 def standard_Event_Year_files(data, country_name, method, return_period_type):
 
-    conflict_profile, df_annual, insurance_table_df, annual_summary = standard_Country_Year_files(data, country_name)
+    conflict_profile, df_annual, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name)
 
     df_annual = df_annual.rename(columns={'GIS__Index': 'priogrid_gid'})
     cumulative_distribution = calculate_cumulative_distribution(df_annual, 'percapita_100k')
@@ -342,7 +342,7 @@ def smoothing_Event_Year_files(data, country_name, method, return_period_type):
 
 def aggregation_Event_Year_files(data, country_name, method, aggregation_unit):
 
-    conflict_profile, aggregation_annual__country, insurance_table_df, annual_summary = aggregation_Country_Year_files(data, country_name, aggregation_unit)
+    conflict_profile, aggregation_annual__country, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit)
 
     #This cell is exclusively working with E_i values (Return Period by Cell)
     aggregation_annual__country_renamed = aggregation_annual__country.rename(columns={'GIS__Index': 'priogrid_gid'})
@@ -405,7 +405,7 @@ def insurance_files(data, country_name, method, return_period_process, aggregati
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
 
     if method == 'aggregation' and return_period_process == 'Country year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, return_period_process)
+        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
     
     if method == 'standard' and return_period_process == 'Country year':

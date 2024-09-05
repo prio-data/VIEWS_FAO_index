@@ -140,7 +140,7 @@ def query_geodataframe(gdf, method_annual__country, year_to_evaluate, field='per
 
 
     # Column to check and rename
-    gis_column_to_check = 'priogrid_g'
+    gis_column_to_check = 'priogrid_g' #GIS__Index #priogrid_gid (from E_i)
     gis_new_column_name = 'TARGET_FID'
 
     # Check if the column exists and rename it if it does
@@ -148,18 +148,25 @@ def query_geodataframe(gdf, method_annual__country, year_to_evaluate, field='per
         gdf_renamed = gdf.rename(columns={gis_column_to_check: gis_new_column_name})
     else:
          gdf_renamed = gdf
-         raise ValueError(f"This tools expected to find a column: {gis_column_to_check}, in the gdf file... which was not located ")
+         #raise ValueError(f"This tools expected to find a column: {gis_column_to_check}, in the gdf file... which was not located ")
 
     # Column to check and rename
-    column_to_check = 'pg_id'
+    column_to_check = ['pg_id', 'priogrid_gid']
     new_column_name = 'GIS__Index'
 
-    # Check if the column exists and rename it if it does
-    if column_to_check in method_annual__country.columns:
-        method_annual__country_renamed = method_annual__country.rename(columns={column_to_check: new_column_name})
+    # # Check if the column exists and rename it if it does
+    # if column_to_check in method_annual__country.columns:
+    #     method_annual__country_renamed = method_annual__country.rename(columns={column_to_check: new_column_name})
+    # else:
+    #     method_annual__country_renamed = method_annual__country
+    #     #raise ValueError(f"This tools expected to find a column: {column_to_check}, which was not located ")
+
+    for column in column_to_check:
+        if column in method_annual__country.columns:
+            method_annual__country_renamed = method_annual__country.rename(columns={column: new_column_name})
+            break  # Exit the loop once the first match is found
     else:
         method_annual__country_renamed = method_annual__country
-        raise ValueError(f"This tools expected to find a column: {column_to_check}, which was not located ")
 
 
     df_query_year = method_annual__country_renamed[method_annual__country_renamed['year'] == year_to_evaluate]
