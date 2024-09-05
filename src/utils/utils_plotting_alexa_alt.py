@@ -1,5 +1,7 @@
 # This is a slight variation of the utils_plotting.py file enabling custom titles for the plot_country_time_series function
 
+# This function is deprecated and will be replaced
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt

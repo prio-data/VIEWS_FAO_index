@@ -1,3 +1,5 @@
+# creating a custom colourmap setting specific thresholds for colours associated with certain retur 
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -6,6 +8,8 @@ import seaborn as sns
 #import geopandas as gpd
 #import cartopy.crs as ccrs
 #import cartopy.feature as cfeature
+
+from matplotlib.colors import ListedColormap, BoundaryNorm
 
 import sys
 from pathlib import Path
@@ -221,7 +225,7 @@ def plot_country_period_map(df, country_id, features, time_period_ids, shared_fe
 
             else:
                 raise ValueError('shared_min_max should be a boolean.')
-
+           
             country_name = list(get_country_names_by_ids([country_id]).values())[0]
 
             if time_period == 'year_id':
@@ -234,7 +238,9 @@ def plot_country_period_map(df, country_id, features, time_period_ids, shared_fe
             # Assuming sub_df is your DataFrame and feature is the column name for pixel intensity
             pivot_table = sub_df.pivot(index='row', columns='col', values=feature)
 
+
             im = ax.imshow(pivot_table, cmap=cmap, vmin=vmin, vmax=vmax, origin='lower')
+
 
             # Add title
             ax.set_title(title, fontsize=16)
@@ -263,4 +269,3 @@ def plot_country_period_map(df, country_id, features, time_period_ids, shared_fe
             raise ValueError("Please provide a path to save the plot")
 
     plt.show()
-
