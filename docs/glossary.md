@@ -1,4 +1,5 @@
 # Glossary of Terms and Concepts
+*In progress for second round of review and edits*
 
 ## 1. **Event**
 **Definition:** A single observation of non-zero values within a well-defined temporospatial unit. The exact definition of an event is influenced by the specific spatial and temporal aggregation used for a given analysis. This may include aggregations at various levels such as a 1x1 PRIO grid cell month, a 2x2 PRIO grid cell year, an administrative unit month, a country year, or other defined units. The non-zero value could represent one of several different measures of fatalities contained in the data (see codebook for details). While various measures exist, the primary feature used is the total conflict-related fatalities per 100k population, with the base level of analysis being the monthly PRIO grid cell.
