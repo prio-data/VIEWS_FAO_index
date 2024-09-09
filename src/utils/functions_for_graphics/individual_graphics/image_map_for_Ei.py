@@ -109,23 +109,118 @@ def image_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperi
     # Apply transparency to values that are 0
     
 
-def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, aggregation='1', field='percapita_100k', figure_height=3.5, figure_width=3.5, year_id=1):
-    """
-    Save a categorized map image based on specified thresholds and labels.
+# def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, aggregation='1', field='percapita_100k', country_label = 'yes', figure_height=3.5, figure_width=3.5, year_id=1):
+#     """
+#     Save a categorized map image based on specified thresholds and labels.
 
-    Parameters:
-    - gdf: GeoDataFrame containing geometries and data.
-    - thresholds: List of numeric thresholds for categorizing data.
-    - labels: List of labels corresponding to the thresholds.
-    - color_df: DataFrame with labels and corresponding colors.
-    - country: Country name for the title of the map.
-    - method: Method used for the analysis (e.g., 'Aggregation').
-    - returnperiodmethod: Method used for return period calculation (e.g., 'Cell Year').
-    - year: Year of the analysis.
-    - aggregation: Aggregation level (default is 1).
-    - field: Field in the GeoDataFrame to be used for categorization (default is 'percapita_100k').
-    - figure_height: Height of the figure (default is 3.5).
-    - figure_width: Width of the figure (default is 3.5).
+#     Parameters:
+#     - gdf: GeoDataFrame containing geometries and data.
+#     - thresholds: List of numeric thresholds for categorizing data.
+#     - labels: List of labels corresponding to the thresholds.
+#     - color_df: DataFrame with labels and corresponding colors.
+#     - country: Country name for the title of the map.
+#     - method: Method used for the analysis (e.g., 'Aggregation').
+#     - returnperiodmethod: Method used for return period calculation (e.g., 'Cell Year').
+#     - year: Year of the analysis.
+#     - aggregation: Aggregation level (default is 1).
+#     - field: Field in the GeoDataFrame to be used for categorization (default is 'percapita_100k').
+#     - figure_height: Height of the figure (default is 3.5).
+#     - figure_width: Width of the figure (default is 3.5).
+#     """
+
+#     def float_to_custom_string(value):
+#         return f"{value:.2f}"
+
+#     def ensure_directory_exists(path):
+#         if not os.path.exists(path):
+#             os.makedirs(path)
+
+#     figure_height_str = float_to_custom_string(figure_height)
+#     figure_width_str = float_to_custom_string(figure_width)
+
+#     aggregation_string = str(aggregation) + 'x' + str(aggregation)
+
+#     base_directory = os.getcwd()
+#     # Ensure all path components are strings
+
+#     if aggregation == '1':
+#         output_path = os.path.join(base_directory, 'files', country, method, returnperiodmethod, 'map_png')
+#     else:
+#         output_path = os.path.join(base_directory, 'files', country, method, returnperiodmethod, aggregation_string, 'map_png')
+
+#     ensure_directory_exists(output_path)
+
+#     # Ensure thresholds and labels are aligned
+#     if len(thresholds) + 1 != len(labels):
+#         raise ValueError("The number of thresholds must be one less than the number of labels.")
+    
+#     # Add the new threshold of 0.1 to separate the "zero" category
+#     thresholds_with_edges = [0, 0.1] + thresholds + [float('inf')]
+    
+#     # Extend the labels list with "zero" for the new category
+#     labels = ['zero'] + labels
+
+#     # Create a dictionary for color mapping with RGBA values
+#     color_map = dict(zip(color_df['Label'], color_df['Color']))
+    
+#     # Set the color for the "zero" category to white
+#     color_map['zero'] = '#d5dbdb'  # White color
+
+#     # Assign categories to the GeoDataFrame based on thresholds
+#     gdf['category'] = pd.cut(
+#         gdf[field], 
+#         bins=thresholds_with_edges,
+#         labels=labels, 
+#         include_lowest=True,
+    #     right=False
+    # )
+    
+    # # Convert categories to strings to avoid TypeError
+    # gdf['category'] = gdf['category'].astype(str)
+
+    # # Map colors to categories
+    # gdf['color'] = gdf['category'].map(color_map)
+
+    # # Fill NaN values with a default color (dark red)
+    # default_color = '#8B0000'  # Dark red
+    # gdf['color'].fillna(default_color, inplace=True)
+
+    # # Reproject the GeoDataFrame to Web Mercator (EPSG:3857)
+    # gdf = gdf.to_crs(epsg=3857)
+    
+    # output_file = os.path.join(output_path, f'{country} conflict year {year_id} in {year}  with dimensions {figure_width_str}x{figure_height_str}.png')
+
+    # fig, ax = plt.subplots(figsize=(figure_width, figure_height))
+    # gdf.plot(color=gdf['color'], edgecolor='darkgrey', alpha=0.8, ax=ax, legend=False)
+    # ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
+
+
+    
+    # ax.set_axis_off()
+    # ax.set_xlim(gdf.total_bounds[[0, 2]])
+    # ax.set_ylim(gdf.total_bounds[[1, 3]])
+    # ax.set_aspect('equal', adjustable='datalim')
+
+
+    # if country_label == 'yes':
+    #     title_text = f'{country}, {year}'
+    #     text = ax.text(1, 0, title_text, transform=ax.transAxes, fontsize=10, va='bottom', ha='right')
+        
+    #     # Add path effect for halo
+    #     text.set_path_effects([
+    #         patheffects.withStroke(linewidth=3, foreground="white"),
+    #         patheffects.Normal()
+    #     ])
+
+    # plt.savefig(output_file, dpi=300, bbox_inches='tight', pad_inches=0, transparent=True)
+    # plt.show()
+
+    # print(f'Map saved to {output_file}')
+
+
+def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, aggregation='1', field='percapita_100k', country_label='yes', figure_height=3.5, figure_width=3.5, year_id=1):
+    """
+    Save a categorized map image based on specified thresholds and labels, ensuring exact dimensions.
     """
 
     def float_to_custom_string(value):
@@ -141,7 +236,6 @@ def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, retur
     aggregation_string = str(aggregation) + 'x' + str(aggregation)
 
     base_directory = os.getcwd()
-    # Ensure all path components are strings
 
     if aggregation == '1':
         output_path = os.path.join(base_directory, 'files', country, method, returnperiodmethod, 'map_png')
@@ -154,17 +248,17 @@ def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, retur
     if len(thresholds) + 1 != len(labels):
         raise ValueError("The number of thresholds must be one less than the number of labels.")
     
-    # Add the new threshold of 0.1 to separate the "zero" category
+    # Add a new threshold of 0.1 to separate the "zero" category
     thresholds_with_edges = [0, 0.1] + thresholds + [float('inf')]
     
     # Extend the labels list with "zero" for the new category
     labels = ['zero'] + labels
 
-    # Create a dictionary for color mapping with RGBA values
+    # Create a color mapping dictionary
     color_map = dict(zip(color_df['Label'], color_df['Color']))
     
-    # Set the color for the "zero" category to white
-    color_map['zero'] = '#d5dbdb'  # White color
+    # Set color for "zero" category
+    color_map['zero'] = '#d5dbdb'
 
     # Assign categories to the GeoDataFrame based on thresholds
     gdf['category'] = pd.cut(
@@ -174,46 +268,65 @@ def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, retur
         include_lowest=True,
         right=False
     )
-    
-    # Convert categories to strings to avoid TypeError
+
     gdf['category'] = gdf['category'].astype(str)
 
     # Map colors to categories
     gdf['color'] = gdf['category'].map(color_map)
 
     # Fill NaN values with a default color (dark red)
-    default_color = '#8B0000'  # Dark red
+    default_color = 'lightgray'
     gdf['color'].fillna(default_color, inplace=True)
 
     # Reproject the GeoDataFrame to Web Mercator (EPSG:3857)
     gdf = gdf.to_crs(epsg=3857)
-    
+
     output_file = os.path.join(output_path, f'{country} conflict year {year_id} in {year}  with dimensions {figure_width_str}x{figure_height_str}.png')
 
+    # Create the plot with exact figure dimensions
     fig, ax = plt.subplots(figsize=(figure_width, figure_height))
-    gdf.plot(color=gdf['color'], edgecolor='darkgrey', alpha=0.8, ax=ax, legend=False)
-    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik)
     
-    ax.set_axis_off()
-    ax.set_xlim(gdf.total_bounds[[0, 2]])
-    ax.set_ylim(gdf.total_bounds[[1, 3]])
+    # Plot the data with the assigned colors
+    gdf.plot(color=gdf['color'], edgecolor='darkgrey', alpha=0.8, ax=ax)
+
+    # Use the zoom level or aspect ratio to adjust basemap within bounds
+    bounds = gdf.total_bounds
+
+    # Get the aspect ratio of the bounds
+    aspect_ratio = (bounds[3] - bounds[1]) / (bounds[2] - bounds[0])
+
+    # Set limits while ensuring the content is centered
+    if aspect_ratio > 1:  # More vertical
+        ax.set_xlim(bounds[0] - (aspect_ratio - 1) * (bounds[2] - bounds[0]) / 2, bounds[2] + (aspect_ratio - 1) * (bounds[2] - bounds[0]) / 2)
+        ax.set_ylim(bounds[1], bounds[3])
+    else:  # More horizontal
+        ax.set_xlim(bounds[0], bounds[2])
+        ax.set_ylim(bounds[1] - (1 - aspect_ratio) * (bounds[3] - bounds[1]) / 2, bounds[3] + (1 - aspect_ratio) * (bounds[3] - bounds[1]) / 2)
+
+    # Ensure the aspect ratio remains fixed
     ax.set_aspect('equal', adjustable='datalim')
 
-    title_text = f'{country}, {year}'
-    text = ax.text(1, 0, title_text, transform=ax.transAxes, fontsize=10, va='bottom', ha='right')
-    
-    # Add path effect for halo
-    text.set_path_effects([
-        patheffects.withStroke(linewidth=3, foreground="white"),
-        patheffects.Normal()
-    ])
+    # Add a basemap
+    ctx.add_basemap(ax, source=ctx.providers.OpenStreetMap.Mapnik, zoom=10)
 
-    plt.savefig(output_file, dpi=300, bbox_inches='tight', pad_inches=0, transparent=True)
+    # Hide the axis
+    ax.set_axis_off()
+
+    # If the country label is requested, add it
+    if country_label == 'yes':
+        title_text = f'{country}, {year}'
+        text = ax.text(1, 0, title_text, transform=ax.transAxes, fontsize=10, va='bottom', ha='right')
+
+        text.set_path_effects([
+            patheffects.withStroke(linewidth=3, foreground="white"),
+            patheffects.Normal()
+        ])
+
+    # Save the figure with tight layout ensuring no additional margins
+    plt.savefig(output_file, dpi=300, bbox_inches='tight', pad_inches=0)
     plt.show()
 
     print(f'Map saved to {output_file}')
-
-
 
 
 

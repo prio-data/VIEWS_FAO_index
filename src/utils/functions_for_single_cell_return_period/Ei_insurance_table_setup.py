@@ -41,8 +41,8 @@ def insurance_table_for_E_i(target_return_periods, E_i_dataframe, original_data,
     
     # Create the preliminary DataFrame
     temp_df = pd.DataFrame({
-        'Intended Return Period': intended_return_period,
-        'Closest E_i': closest_E_i,
+        'return period': intended_return_period,
+        'closest r.p.': closest_E_i,
         value_field: corresponding_percapita_100k
     })
 

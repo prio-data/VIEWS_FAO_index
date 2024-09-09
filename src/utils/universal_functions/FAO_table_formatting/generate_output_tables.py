@@ -1,7 +1,24 @@
 import pandas as pd
 import numpy as np
 
+import os
+import sys
+
+# Get the current working directory
+current_directory = os.getcwd()
+
+# Print the current working directory
+print("The current Working Directory is:", current_directory)
+
+# Get the path to the base directory (VIEWS_FAO_index)
+base_dir = os.path.abspath(os.path.join(os.getcwd(), '..', '..'))
+print(f'The base directory will be set to: {base_dir}')
+
+# Add the base directory to sys.path
+sys.path.insert(0, base_dir)
+
 from src.utils.universal_functions.FAO_table_formatting.calculate_percentiles import convert_to_float_or_null
+from src.utils.functions_for_graphics.individual_graphics.map_helper.manipulate_tables_for_mapping import calculate_histogram_data
 
 def develop_info_dataframe(rp,threshold_value, colors, defined_labels):
     data = {
@@ -182,9 +199,52 @@ def insurance_table(perc_df, orginal_df, percentiles_of_interest, attribute_to_e
 
     return collected
 
+# def calculate_histogram_data(df,field):
+#     # Group by year and sum relevant columns
+#     df_grouped = df.groupby('year').agg({
+#         'fatalities_sum': 'sum',
+#         'pop_gpw_sum': 'sum'
+#     }).reset_index()
+    
+#     # Recalculate per capita fatalities per 100k population
+#     df_grouped[field] = (df_grouped['fatalities_sum'] / df_grouped['pop_gpw_sum']) * 100000
+#     return df_grouped
 
 
-def annual_summary_table(input_df,fat_or_pcf='percapita_100k'):
+# def annual_summary_table(input_df,fat_or_pcf='percapita_100k'):
+
+# # Group by year and sort values within each group
+#     df_sorted = input_df.sort_values(by=['year', fat_or_pcf], ascending=[True, False])
+
+# # Extract the top 3 values for each year
+#     df_top3 = df_sorted.groupby('year').head(3)
+
+# # Aggregate to get the top three values and average value for each year
+#     result_df = df_top3.groupby('year').agg(
+#         first_value=(fat_or_pcf, lambda x: x.iloc[0] if len(x) > 0 else None),
+#         second_value=(fat_or_pcf, lambda x: x.iloc[1] if len(x) > 1 else None),
+#         third_value=(fat_or_pcf, lambda x: x.iloc[2] if len(x) > 2 else None)
+#     ).reset_index()
+
+#     # Calculate the average value for each year -- df_sorted was org_df
+#     average_values = df_sorted.groupby('year')[fat_or_pcf].mean().reset_index().rename(columns={fat_or_pcf: 'average_value'})
+    
+#     # Merge the result_df with average_values
+#     year_df = pd.merge(result_df, average_values, on='year')
+#     return(year_df)
+
+# def calculate_histogram_data(df):
+#     # Group by year and sum relevant columns
+#     df_grouped = df.groupby('year').agg({
+#         'fatalities_sum': 'sum',
+#         'pop_gpw_sum': 'sum'
+#     }).reset_index()
+    
+#     # Recalculate per capita fatalities per 100k population
+#     df_grouped['average_value'] = (df_grouped['fatalities_sum'] / df_grouped['pop_gpw_sum']) * 100000
+#     return df_grouped
+
+def annual_summary_table(input_df, method, fat_or_pcf='percapita_100k'):
 
 # Group by year and sort values within each group
     df_sorted = input_df.sort_values(by=['year', fat_or_pcf], ascending=[True, False])
@@ -199,12 +259,22 @@ def annual_summary_table(input_df,fat_or_pcf='percapita_100k'):
         third_value=(fat_or_pcf, lambda x: x.iloc[2] if len(x) > 2 else None)
     ).reset_index()
 
-    # Calculate the average value for each year -- df_sorted was org_df
-    average_values = df_sorted.groupby('year')[fat_or_pcf].mean().reset_index().rename(columns={fat_or_pcf: 'average_value'})
+    if method != 'smoothing':
+        average_values = calculate_histogram_data(input_df)
+        # List of columns to keep
+        columns_to_keep = ['year', 'average_value']  # Replace with your column names
 
-    # Merge the result_df with average_values
-    year_df = pd.merge(result_df, average_values, on='year')
-    return(year_df)
+        # Filter the dataframe to keep only the specified columns
+        average_values_filtered = average_values[columns_to_keep]
+        
+        # Calculate the average value for each year -- df_sorted was org_df
+        #average_values = df_sorted.groupby('year')[fat_or_pcf].mean().reset_index().rename(columns={fat_or_pcf: 'average_value'})
+        
+        # Merge the result_df with average_values
+        result_df = pd.merge(result_df, average_values_filtered, on='year')
+        
+    return(result_df)
+
 
 """ 
 Accepts the dataframe which hosts fields:

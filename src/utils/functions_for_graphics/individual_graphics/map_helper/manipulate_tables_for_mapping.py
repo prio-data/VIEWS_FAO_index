@@ -181,3 +181,14 @@ def float_to_custom_string(value):
     custom_str = value_str.replace('.', '_')
     return custom_str
 
+def calculate_histogram_data(df):
+    # Group by year and sum relevant columns
+    df_grouped = df.groupby('year').agg({
+        'fatalities_sum': 'sum',
+        'pop_gpw_sum': 'sum'
+    }).reset_index()
+    
+    # Recalculate per capita fatalities per 100k population
+    df_grouped['average_value'] = (df_grouped['fatalities_sum'] / df_grouped['pop_gpw_sum']) * 100000
+    return df_grouped
+
