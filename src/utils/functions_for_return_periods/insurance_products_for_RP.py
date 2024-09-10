@@ -19,17 +19,6 @@ import os
 import pandas as pd
 import matplotlib.pyplot as plt
 
-#Functions necessary for all methods:
-from src.utils.universal_functions.setup.generate_base_file import give_primary_frame
-from src.utils.universal_functions.setup.associate_country_id import associate_country_years, pull_from_c_y_dictionary
-from src.utils.universal_functions.setup.build_directory import ensure_directory_exists
-
-
-#Functions to generate the insurance table requested by FAO partners:
-from src.utils.universal_functions.FAO_table_formatting.calculate_percentiles import format_stats, clean_percentile_table
-from src.utils.universal_functions.FAO_table_formatting.generate_output_tables import insurance_table, annual_summary_table
-
-
 #Function for Event-Year Return Period process:
 from src.utils.functions_for_single_cell_return_period.cell_return_period import calculate_cumulative_distribution, calculate_probabilities, calculate_expected_time_periods, calculate_expected_voxels, compare_empirical_vs_expected
 from src.utils.functions_for_single_cell_return_period.Ei_insurance_table_setup import insurance_table_for_E_i
@@ -43,6 +32,10 @@ from src.utils.universal_functions.setup.build_directory import ensure_directory
 #Functions to generate the insurance table requested by FAO partners:
 from src.utils.universal_functions.FAO_table_formatting.calculate_percentiles import format_stats, clean_percentile_table
 from src.utils.universal_functions.FAO_table_formatting.generate_output_tables import insurance_table, annual_summary_table
+
+#Functions bespoke to smoothing method:
+from src.utils.functions_for_method_smoothing.generate_smoothing_dataframe import smoothed_dataframe
+
 
 
 def smoothing_Country_Year_files(data, country_name):
@@ -67,7 +60,7 @@ def smoothing_Country_Year_files(data, country_name):
     percentile_df = format_stats(df_annual_cleaned, 'perca_Mean')
     filtered_x = clean_percentile_table(percentile_df)
     insurance_table_df = insurance_table(filtered_x, df_annual_cleaned, ['90','95','98','99','100'], 'perca_Mean') #uses the default attribute = percapita_100k and appened_1_value = yes
-    annual_summary = annual_summary_table(df_annual_cleaned, 'perca_Mean')
+    annual_summary = annual_summary_table(df_annual_cleaned, 'smoothing', 'perca_Mean')
 #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -97,7 +90,7 @@ def smoothing_Country_Year_files(data, country_name):
 
 def smoothing_Event_Year_files(data, country_name, method, return_period_type):
 
-    conflict_profile, df_annual_cleaned, insurance_table_df, annual_summary = smoothing_Country_Year_files(data, country_name)
+    conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = smoothing_Country_Year_files(data, country_name)
 
     #This cell is exclusively working with E_i values (Return Period by Cell)
     cumulative_distribution = calculate_cumulative_distribution(df_annual_cleaned, 'perca_Mean')
@@ -116,7 +109,7 @@ def smoothing_Event_Year_files(data, country_name, method, return_period_type):
     subset_E_i = probabilities_with_empirical_sorted[probabilities_with_empirical_sorted['E_i_value'] >= 4.0]
     insurance_from_E_i = insurance_table_for_E_i( [5,10,20,30], subset_E_i, df_annual_cleaned, value_field='perca_Mean')
     insurance_from_E_i = insurance_from_E_i.round({
-        'Closest E_i': 1,
+        'closest r.p.': 1,
         'perca_Mean': 1,
     })
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -140,15 +133,4 @@ def smoothing_Event_Year_files(data, country_name, method, return_period_type):
     probabilities_with_empirical_sorted.to_csv(event_year_probabilities_file_path)
 
     return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
-
-
-def insurance_files(data, country_name, method, return_period_process, aggregation_unit='0'):
-    if method == 'smoothing' and return_period_process == 'Event year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i =  smoothing_Event_Year_files(data, country_name, method, return_period_process)
-        return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
-
-    if method == 'smoothing' and return_period_process == 'Country year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = smoothing_Country_Year_files(data, country_name)
-        return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
-
 
