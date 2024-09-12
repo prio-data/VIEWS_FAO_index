@@ -47,6 +47,7 @@ def map_event_cat_rp(country, method, returnperiodmethod, year_datastart, year_d
 
         map_path = base_directory + '/files/' + country + '/' + method + '/' + returnperiodmethod  + '/' + 'map_png/'
         print(map_path)
+        
         annual_table_path = base_directory + '/files/' + country + '/' + method + '/' + returnperiodmethod  + '/' + aggregation_string + '/table_png/'
         print(annual_table_path)
         return_period_table_path = base_directory + '/files/' + country + '/' + method + '/' + returnperiodmethod  + '/table_png/percentile and payout table/'
