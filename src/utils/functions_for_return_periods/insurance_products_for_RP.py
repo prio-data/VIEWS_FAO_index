@@ -45,7 +45,7 @@ from src.utils.universal_functions.FAO_table_formatting.calculate_percentiles im
 from src.utils.universal_functions.FAO_table_formatting.generate_output_tables import insurance_table, annual_summary_table
 
 
-def standard_Country_Year_files(data, country_name):
+def standard_Country_Year_files(data, country_name, attribute):
 
     country_and_year_dictionary = associate_country_years(data, country_name)
     print('printing he country and year dictionary:')
@@ -64,10 +64,10 @@ def standard_Country_Year_files(data, country_name):
     df_annual = native_per_capita_fatalities(subset_to_country)
     df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
 
-    percentile_df = format_stats(df_annual)
+    percentile_df = format_stats(df_annual, field_to_describe=attribute)
     filtered_x = clean_percentile_table(percentile_df)
-    insurance_table_df = insurance_table(filtered_x, df_annual, ['90','95','98','99','100']) #uses the default attribute = percapita_100k and appened_1_value = yes
-    annual_summary = annual_summary_table(df_annual, 'standard', 'percapita_100k')
+    insurance_table_df = insurance_table(filtered_x, df_annual, ['90','95','98','99','100'], attribute_to_explore=attribute) #uses the default attribute = percapita_100k and appened_1_value = yes
+    annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=attribute)
 #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -94,12 +94,12 @@ def standard_Country_Year_files(data, country_name):
 
     return(conflict_profile, df_annual, annual_summary, insurance_table_df)
 
-def standard_Event_Year_files(data, country_name, method, return_period_type):
+def standard_Event_Year_files(data, country_name, method, return_period_type, attribute):
 
-    conflict_profile, df_annual, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name)
+    conflict_profile, df_annual, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name, attribute)
 
     df_annual = df_annual.rename(columns={'GIS__Index': 'priogrid_gid'})
-    cumulative_distribution = calculate_cumulative_distribution(df_annual, 'percapita_100k')
+    cumulative_distribution = calculate_cumulative_distribution(df_annual, attribute)
 
     #calculate_probabilities(cumulative_distribution, data, id_column='percapita_100k'):
     probabilities = calculate_probabilities(cumulative_distribution, df_annual, 'pg_id')
@@ -107,16 +107,16 @@ def standard_Event_Year_files(data, country_name, method, return_period_type):
     probabilities['E_i'] = calculate_expected_time_periods(probabilities['P_i'])
     # Calculate E_i^voxels
     probabilities['E_i_voxels'] = calculate_expected_voxels(probabilities['p_i'])
-    probabilities_renamed = probabilities.rename(columns={'value': 'percapita_100k'})
+    probabilities_renamed = probabilities.rename(columns={'value': attribute})
     print(probabilities_renamed.head(100))
 
-    probabilities_with_empirical = compare_empirical_vs_expected(df_annual, probabilities_renamed)
+    probabilities_with_empirical = compare_empirical_vs_expected(df_annual, probabilities_renamed, value_column=attribute)
     probabilities_with_empirical_sorted = probabilities_with_empirical.sort_values(by='E_i_value')
     subset_E_i = probabilities_with_empirical_sorted[probabilities_with_empirical_sorted['E_i_value'] >= 4.0]
-    insurance_from_E_i = insurance_table_for_E_i([5,10,20,30], subset_E_i, df_annual)
+    insurance_from_E_i = insurance_table_for_E_i([5,10,20,30], subset_E_i, df_annual, value_field=attribute)
     insurance_from_E_i = insurance_from_E_i.round({
         'closest r.p.': 1,
-        'percapita_100k': 1,
+        attribute: 1,
     })
 #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
