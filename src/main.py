@@ -9,7 +9,8 @@ from set_paths import setup_project_paths, get_data_paths
 setup_project_paths(PATH)
 
 from utils_main_print_statements import print_main_title_head, print_directory_contents, print_library_versions
-from utils_main_prompts import prompt_user
+# from utils_main_prompts import prompt_user
+from utils_main_prompts_dynamic import prompt_user_dynamic
 
 def main():
 
@@ -28,7 +29,7 @@ def main():
         if choice == '1':
             print_directory_contents()
         elif choice == '2':
-            prompt_user()
+            prompt_user_dynamic()
         elif choice == '3':
             print_library_versions()
         elif choice == '4':
