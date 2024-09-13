@@ -298,3 +298,50 @@ def query_and_sort_annual_table(input_table, field_to_sort='first_value', number
 
     top_n_rows = sorted_input_table.head(number_of_rows)
     return(top_n_rows)
+
+import pandas as pd
+# Step 2: Create a function to map per capita values to the appropriate 'Return Period' and 'Label'
+def map_return_period(value):
+    for _, row in filtered_info.iterrows():
+        if row['Range_min'] <= value < row['Range_max']:
+            return pd.Series([row['Return Period'], row['Label']])
+    return pd.Series([None, None])
+
+def append_return_periods_to_annual_table(x, y, filtered_info):
+    # Step 1: Split the 'Range' column into two columns (min and max)
+    filtered_info[['Range_min', 'Range_max']] = filtered_info['Range'].str.split(' - ', expand=True)
+    filtered_info['Range_min'] = filtered_info['Range_min'].astype(float)
+    filtered_info['Range_max'] = filtered_info['Range_max'].astype(float)
+
+    # Step 2: Create a function to map per capita values to the appropriate 'Return Period' and 'Label'
+
+
+    # Step 3: Apply the function to the per_capita_df and assign the new 'Return Period' and 'Label' columns
+    x[['Return Period', 'Label']] = x['percapita_100k'].apply(map_return_period)
+
+    # Output the dataframe
+    #print(expl_x)
+
+    # Group by 'year' and 'Return Period', then count occurrences
+    aggregated_series = x.groupby(['year', 'Return Period']).size().reset_index(name='Count')
+
+    # Pivot the DataFrame
+    pivoted_df = aggregated_series.pivot_table(index='year', columns='Return Period', values='Count', fill_value=0)
+
+    # Reset the index to make 'year' a column
+    pivoted_df = pivoted_df.reset_index()
+
+    pivoted_df = pivoted_df.rename_axis(None, axis=1)
+
+    #change label for '0' column:
+    if 0 in pivoted_df.columns:
+        label_for_zero = x.loc[x['Return Period'] == 0, 'Label'].values[0]
+        pivoted_df.rename(columns={0: label_for_zero}, inplace=True)
+
+    #Reformat the annual summary table to only contain the max event and average event
+    annual_summary_df = y.drop(columns=['second_value', 'third_value'])
+
+    #Then merge the with count of R.P. events table just created on the field 'year'
+    merged_annual_summary = pd.merge(annual_summary_df, pivoted_df, on='year')
+    return(merged_annual_summary)
+#--------------------------------------------------------------------------------------------
