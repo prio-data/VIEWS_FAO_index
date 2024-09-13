@@ -35,7 +35,6 @@ from src.utils.functions_for_method_standard.standard_per_capita_fatalities impo
 #Functions bespoke to aggregation method:
 from src.utils.functions_for_method_aggregation.generate_aggregate_dataframe import aggregate_priogrid_for_country, map_c_y_dictionary_to_data, map_c_id_to_aggregations
 
-
 #Function for Event-Year Return Period process:
 from src.utils.functions_for_single_cell_return_period.cell_return_period import calculate_cumulative_distribution, calculate_probabilities, calculate_expected_time_periods, calculate_expected_voxels, compare_empirical_vs_expected
 from src.utils.functions_for_single_cell_return_period.Ei_insurance_table_setup import insurance_table_for_E_i
@@ -45,7 +44,6 @@ from src.utils.universal_functions.setup.generate_base_file import give_primary_
 from src.utils.universal_functions.setup.associate_country_id import associate_country_years, pull_from_c_y_dictionary
 from src.utils.universal_functions.setup.build_directory import ensure_directory_exists
 
-
 #Functions to generate the insurance table requested by FAO partners:
 from src.utils.universal_functions.FAO_table_formatting.calculate_percentiles import format_stats, clean_percentile_table
 from src.utils.universal_functions.FAO_table_formatting.generate_output_tables import insurance_table, annual_summary_table
@@ -53,13 +51,12 @@ from src.utils.universal_functions.FAO_table_formatting.generate_output_tables i
 #Functions bespoke to smoothing method:
 from src.utils.functions_for_method_smoothing.generate_smoothing_dataframe import smoothed_dataframe
 
-
-
-def standard_Country_Year_files(data, country_name):
+def standard_Country_Year_files(data, country_name, eval_field):
 
     country_and_year_dictionary = associate_country_years(data, country_name)
     print('printing he country and year dictionary:')
     print(country_and_year_dictionary)
+#-----------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------
 #   Second:
 #       1. Subset designated country in list. This requires examining country_id information and corresponding start and end years. 
@@ -74,10 +71,10 @@ def standard_Country_Year_files(data, country_name):
     df_annual = native_per_capita_fatalities(subset_to_country)
     df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
 
-    percentile_df = format_stats(df_annual)
+    percentile_df = format_stats(df_annual, field_to_describe=eval_field)
     filtered_x = clean_percentile_table(percentile_df)
-    insurance_table_df = insurance_table(filtered_x, df_annual, ['90','95','98','99','100']) #uses the default attribute = percapita_100k and appened_1_value = yes
-    annual_summary = annual_summary_table(df_annual, 'standard', 'percapita_100k')
+    insurance_table_df = insurance_table(filtered_x, df_annual, ['90','95','98','99','100'], attribute_to_explore=eval_field) #uses the default attribute = percapita_100k and appened_1_value = yes
+    annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=eval_field)
 #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -153,7 +150,7 @@ def smoothing_Country_Year_files(data, country_name):
 #-----------------------------------------------------------------------------------------------------------------------------------
     return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
 
-def aggregation_Country_Year_files(data, country_name, aggregation_unit):
+def aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_field):
 #-----------------------------------------------------------------------------------------------------------------------------------
     country_and_year_dictionary = associate_country_years(data, country_name)
     cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
@@ -216,10 +213,10 @@ def aggregation_Country_Year_files(data, country_name, aggregation_unit):
     aggregation_annual__country = aggregation_annual[aggregation_annual['most_common_cid'] == cid]
     aggregation_annual__country['percapita_100k'] = aggregation_annual__country['percapita_100k'].round(1)
 
-    percentile_df = format_stats(aggregation_annual__country)
+    percentile_df = format_stats(aggregation_annual__country, field_to_describe=eval_field)
     filtered_x = clean_percentile_table(percentile_df)
-    insurance_table_df = insurance_table(filtered_x, aggregation_annual__country, ['90','95','98','99','100'], 'percapita_100k', 'yes')
-    annual_summary = annual_summary_table(aggregation_annual__country, 'aggregation', 'percapita_100k')
+    insurance_table_df = insurance_table(filtered_x, aggregation_annual__country, ['90','95','98','99','100'], eval_field, 'yes')
+    annual_summary = annual_summary_table(aggregation_annual__country, 'aggregation', eval_field)
 
 #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
@@ -248,12 +245,12 @@ def aggregation_Country_Year_files(data, country_name, aggregation_unit):
     return(conflict_profile, aggregation_annual__country, annual_summary, insurance_table_df)
 
 
-def standard_Event_Year_files(data, country_name, method, return_period_type):
+def standard_Event_Year_files(data, country_name, method, return_period_type, eval_field):
 
-    conflict_profile, df_annual, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name)
+    conflict_profile, df_annual, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name, eval_field)
 
     df_annual = df_annual.rename(columns={'GIS__Index': 'priogrid_gid'})
-    cumulative_distribution = calculate_cumulative_distribution(df_annual, 'percapita_100k')
+    cumulative_distribution = calculate_cumulative_distribution(df_annual, eval_field)
 
     #calculate_probabilities(cumulative_distribution, data, id_column='percapita_100k'):
     probabilities = calculate_probabilities(cumulative_distribution, df_annual, 'pg_id')
@@ -261,16 +258,16 @@ def standard_Event_Year_files(data, country_name, method, return_period_type):
     probabilities['E_i'] = calculate_expected_time_periods(probabilities['P_i'])
     # Calculate E_i^voxels
     probabilities['E_i_voxels'] = calculate_expected_voxels(probabilities['p_i'])
-    probabilities_renamed = probabilities.rename(columns={'value': 'percapita_100k'})
+    probabilities_renamed = probabilities.rename(columns={'value': eval_field})
     print(probabilities_renamed.head(100))
 
-    probabilities_with_empirical = compare_empirical_vs_expected(df_annual, probabilities_renamed)
+    probabilities_with_empirical = compare_empirical_vs_expected(df_annual, probabilities_renamed, time_column='year', value_column=eval_field)
     probabilities_with_empirical_sorted = probabilities_with_empirical.sort_values(by='E_i_value')
     subset_E_i = probabilities_with_empirical_sorted[probabilities_with_empirical_sorted['E_i_value'] >= 4.0]
-    insurance_from_E_i = insurance_table_for_E_i([5,10,20,30], subset_E_i, df_annual)
+    insurance_from_E_i = insurance_table_for_E_i([5,10,20,30], subset_E_i, df_annual, value_field=eval_field)
     insurance_from_E_i = insurance_from_E_i.round({
         'closest r.p.': 1,
-        'percapita_100k': 1,
+        eval_field: 1,
     })
 #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
@@ -340,13 +337,13 @@ def smoothing_Event_Year_files(data, country_name, method, return_period_type):
 
     return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
 
-def aggregation_Event_Year_files(data, country_name, method, aggregation_unit):
+def aggregation_Event_Year_files(data, country_name, method, aggregation_unit, eval_field):
 
-    conflict_profile, aggregation_annual__country, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit)
+    conflict_profile, aggregation_annual__country, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_field)
 
     #This cell is exclusively working with E_i values (Return Period by Cell)
     aggregation_annual__country_renamed = aggregation_annual__country.rename(columns={'GIS__Index': 'priogrid_gid'})
-    cumulative_distribution = calculate_cumulative_distribution(aggregation_annual__country_renamed, 'percapita_100k')
+    cumulative_distribution = calculate_cumulative_distribution(aggregation_annual__country_renamed, eval_field)
 
     #calculate_probabilities(cumulative_distribution, data, id_column='percapita_100k'):
     probabilities = calculate_probabilities(cumulative_distribution, aggregation_annual__country_renamed, 'priogrid_gid')
@@ -354,16 +351,16 @@ def aggregation_Event_Year_files(data, country_name, method, aggregation_unit):
     probabilities['E_i'] = calculate_expected_time_periods(probabilities['P_i'])
     # Calculate E_i^voxels
     probabilities['E_i_voxels'] = calculate_expected_voxels(probabilities['p_i'])
-    probabilities_renamed = probabilities.rename(columns={'value': 'percapita_100k'})
+    probabilities_renamed = probabilities.rename(columns={'value': eval_field})
     print(probabilities_renamed.head(100))
 
-    probabilities_with_empirical = compare_empirical_vs_expected(aggregation_annual__country_renamed, probabilities_renamed)
+    probabilities_with_empirical = compare_empirical_vs_expected(aggregation_annual__country_renamed, probabilities_renamed, time_column='year', value_column=eval_field)
     probabilities_with_empirical_sorted = probabilities_with_empirical.sort_values(by='E_i_value')
     subset_E_i = probabilities_with_empirical_sorted[probabilities_with_empirical_sorted['E_i_value'] >= 4.0]
-    insurance_from_E_i = insurance_table_for_E_i([5,10,20,30], subset_E_i, aggregation_annual__country_renamed)
+    insurance_from_E_i = insurance_table_for_E_i([5,10,20,30], subset_E_i, aggregation_annual__country_renamed, value_field=eval_field)
     insurance_from_E_i = insurance_from_E_i.round({
         'closest r.p.': 1,
-        'percapita_100k': 1,
+        eval_field: 1,
     })
     #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
@@ -387,17 +384,17 @@ def aggregation_Event_Year_files(data, country_name, method, aggregation_unit):
 
     return(conflict_profile, aggregation_annual__country_renamed, annual_summary, insurance_from_E_i)
 
-def insurance_files(data, country_name, method, return_period_process, aggregation_unit='0'):
+def insurance_files(data, country_name, method, return_period_process, aggregation_unit='0', eval_field='percapita_100k'):
     if method == 'smoothing' and return_period_process == 'Event year':
         conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i =  smoothing_Event_Year_files(data, country_name, method, return_period_process)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
     
     if method == 'aggregation' and return_period_process == 'Event year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i = aggregation_Event_Year_files(data, country_name, method, aggregation_unit)
+        conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i = aggregation_Event_Year_files(data, country_name, method, aggregation_unit, eval_field)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
 
     if method == 'standard' and return_period_process == 'Event year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i = standard_Event_Year_files(data, country_name, method, return_period_process)
+        conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i = standard_Event_Year_files(data, country_name, method, return_period_process, eval_field)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
 
     if method == 'smoothing' and return_period_process == 'Country year':
@@ -405,10 +402,10 @@ def insurance_files(data, country_name, method, return_period_process, aggregati
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
 
     if method == 'aggregation' and return_period_process == 'Country year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit)
+        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_field)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
     
     if method == 'standard' and return_period_process == 'Country year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name)
+        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name, eval_field)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
 
