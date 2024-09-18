@@ -118,15 +118,23 @@ def insurance_table(perc_df, orginal_df, percentiles_of_interest, attribute_to_e
     give_value_at_one = None
 
     # If the option to append 1 value is 'yes'
+
+
     if append_1_value == 'yes':
-        for idx, value in perc_df[attribute_to_explore].items():
-            if value >= 1.0:
-                give_value_at_one = perc_df.loc[idx, 'percentile']
-                break
+        if attribute_to_explore == 'fatalities_sum':
+            for idx, value in perc_df[attribute_to_explore].items():
+                if value >= 1.0:
+                    give_value_at_one = perc_df.loc[idx, 'percentile']
+                    break
+        if attribute_to_explore == 'percapita_100k':
+            for idx, value in perc_df[attribute_to_explore].items():
+                if value >= 0.1:
+                    give_value_at_one = perc_df.loc[idx, 'percentile']
+                    break
 
         # Check if give_value_at_one was assigned a value
         if give_value_at_one is not None:
-            print(f"Index where {attribute_to_explore} equals 1: {give_value_at_one}: {value}")
+            print(f"Index where {attribute_to_explore} equals 1 (fatalities) or 0.1 (per capita): {give_value_at_one}: {value}")
             give_value_at_one = str(give_value_at_one)
             percentiles_of_interest.append(give_value_at_one)
             percentiles_of_interest = sorted(percentiles_of_interest, key=float)
@@ -301,20 +309,21 @@ def query_and_sort_annual_table(input_table, field_to_sort='first_value', number
 
 import pandas as pd
 # Step 2: Create a function to map per capita values to the appropriate 'Return Period' and 'Label'
-def map_return_period(value):
-    for _, row in filtered_info.iterrows():
-        if row['Range_min'] <= value < row['Range_max']:
-            return pd.Series([row['Return Period'], row['Label']])
-    return pd.Series([None, None])
+
 
 def append_return_periods_to_annual_table(x, y, filtered_info):
+    
     # Step 1: Split the 'Range' column into two columns (min and max)
     filtered_info[['Range_min', 'Range_max']] = filtered_info['Range'].str.split(' - ', expand=True)
     filtered_info['Range_min'] = filtered_info['Range_min'].astype(float)
     filtered_info['Range_max'] = filtered_info['Range_max'].astype(float)
 
     # Step 2: Create a function to map per capita values to the appropriate 'Return Period' and 'Label'
-
+    def map_return_period(value):
+        for _, row in filtered_info.iterrows():
+            if row['Range_min'] <= value < row['Range_max']:
+                return pd.Series([row['Return Period'], row['Label']])
+        return pd.Series([None, None])
 
     # Step 3: Apply the function to the per_capita_df and assign the new 'Return Period' and 'Label' columns
     x[['Return Period', 'Label']] = x['percapita_100k'].apply(map_return_period)

@@ -30,7 +30,7 @@ sys.path.insert(0, base_dir)
 #this is an old version --
 #would be good to document the specific changes between image_map_E_i and image_save_map_E_i
 
-def image_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, aggregation=1, field='percapita_100k', figure_height=3.5, figure_width=3.5, year_id=1):
+def image_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, eval_attribute, year, aggregation=1, field='percapita_100k', figure_height=3.5, figure_width=3.5, year_id=1):
     """
     Save a categorized map image based on specified thresholds and labels.
 
@@ -100,7 +100,7 @@ def image_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperi
 
     
     # Save the figure
-    filename = f'{country}_{method}_{returnperiodmethod}_{year}_map.png'
+    filename = f'{country}_{method}_{returnperiodmethod}_{eval_attribute}_{year}_map.png'
     #plt.savefig(filename, bbox_inches='tight', dpi=300)
     plt.show()
     
@@ -218,7 +218,7 @@ def image_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperi
     # print(f'Map saved to {output_file}')
 
 
-def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, aggregation='1', field='percapita_100k', country_label='yes', figure_height=3.5, figure_width=3.5, year_id=1):
+def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, eval_attribute, aggregation='1', field='percapita_100k', country_label='yes', figure_height=3.5, figure_width=3.5, year_id=1):
     """
     Save a categorized map image based on specified thresholds and labels, ensuring exact dimensions.
     """
@@ -281,7 +281,7 @@ def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, retur
     # Reproject the GeoDataFrame to Web Mercator (EPSG:3857)
     gdf = gdf.to_crs(epsg=3857)
 
-    output_file = os.path.join(output_path, f'{country} conflict year {year_id} in {year}  with dimensions {figure_width_str}x{figure_height_str}.png')
+    output_file = os.path.join(output_path, f'{country} conflict year {year_id} in {year} investigating {eval_attribute} with dimensions {figure_width_str}x{figure_height_str}.png')
 
     # Create the plot with exact figure dimensions
     fig, ax = plt.subplots(figsize=(figure_width, figure_height))

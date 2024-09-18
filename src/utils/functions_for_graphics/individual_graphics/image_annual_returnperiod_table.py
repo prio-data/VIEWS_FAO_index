@@ -169,7 +169,7 @@ from src.utils.functions_for_graphics.layout_formats.rgb import rgb_to_hex
 #     # Show the table plot
 #     plt.show()
 
-def image_save_returnperiodtable(input_table, colors, column_to_apply_symbology, country, method, returnperiodmethod, aggregation='1', figure_height=1.75, figure_width=2.5): #input_table = Jerry_table
+def image_save_returnperiodtable(input_table, colors, column_to_apply_symbology, country, method, returnperiodmethod, eval_attribute, aggregation='1', figure_height=1.75, figure_width=2.5): #input_table = Jerry_table
 
     #Feedback on Sept 05 was to make column names lower case. The column_to_apply_symbology must now also be lowercase:
     #column_to_apply_symbology = column_to_apply_symbology.lower()
@@ -252,7 +252,7 @@ def image_save_returnperiodtable(input_table, colors, column_to_apply_symbology,
             table[(i, j)].set_facecolor(color)
             table[(i, j)].set_text_props(color='white' if color != light_grey else 'black')
 
-    output_file = output_path + country +' with dimensions ' + figure_width_str + 'x' + figure_height_str + '.png'
+    output_file = output_path + country + f'investigating {eval_attribute} with dimensions ' + figure_width_str + 'x' + figure_height_str + '.png'
     # Save the table as PNG with exact size and no white space
     plt.savefig(output_file, dpi=300, bbox_inches='tight', pad_inches=0, transparent=True)
 
