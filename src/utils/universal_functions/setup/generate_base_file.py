@@ -14,6 +14,35 @@ def give_primary_frame(queryset_name, cm_queryset, start, end):
 
     """
 
+#Here is the queryset used:
+    
+    # (Queryset('Fatalities_fao_pgm','priogrid_month')
+    # .with_column(Column('country_name', from_loa='country', from_column='name')
+    #     )
+
+    # .with_column(Column('C_start_year', from_loa='country', from_column='gwsyear')
+    #     )
+
+    # .with_column(Column('C_end_year', from_loa='country', from_column='gweyear')
+    #     )
+
+    # .with_column(Column('pop_gpw_sum', from_loa='priogrid_year', from_column='pop_gpw_sum')
+    #     )
+
+    # .with_column(Column('ged_sb', from_loa='priogrid_month', from_column='ged_sb_best_sum_nokgi')
+    #     .transform.missing.replace_na()
+    #     )
+
+    # .with_column(Column('ged_ns', from_loa='priogrid_month', from_column='ged_ns_best_sum_nokgi')
+    #     .transform.missing.replace_na()
+    #     )
+
+    # .with_column(Column('ged_os', from_loa='priogrid_month', from_column='ged_os_best_sum_nokgi')
+    #     .transform.missing.replace_na()
+    #     )
+
+    # )
+
     queryset_base_PG= (Queryset(queryset_name, ''))
     df = queryset_base_PG.fetch()
     df = df.reset_index()

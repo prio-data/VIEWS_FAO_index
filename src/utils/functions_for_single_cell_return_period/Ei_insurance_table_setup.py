@@ -1,6 +1,8 @@
 import pandas as pd
 
 def insurance_table_for_E_i(target_return_periods, E_i_dataframe, original_data, value_field='percapita_100k'):
+
+
     """
     Create a DataFrame that matches the intended return periods with the closest E_i values,
     corresponding per capita values, and observations from the sorted list.
@@ -13,6 +15,7 @@ def insurance_table_for_E_i(target_return_periods, E_i_dataframe, original_data,
     Returns:
     pd.DataFrame: A DataFrame with the closest E_i values, intended return periods, corresponding per capita values, and observations.
     """
+    
     
     # Initialize lists to store the results
     closest_E_i = []

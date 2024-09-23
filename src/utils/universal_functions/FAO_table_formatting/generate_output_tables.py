@@ -126,11 +126,8 @@ def generate_and_give_info_dataframe(data, return_period, value_column, rp_colum
         else: 
             color_map = cmap
 
-        periods_to_check = [5, 10, 20, 30]
-        insurance_table_fixed_for_insurance_application = update_preceding_row_if_not_in_return_period(insurance_table_copy, periods_to_check, value_column)
-
         # For E-i---------------------------------------------------------------------------------------------------------------
-        cleaned_thresholds = provide_values_at_input_return_periods(insurance_table_fixed_for_insurance_application, [5,10,20,30], value_column, rp_column)
+        cleaned_thresholds = provide_values_at_input_return_periods(insurance_table_copy, [5,10,20,30], value_column, rp_column)
 
             #Now we make to make a reference dataframe regardless if there are duplicates:
             # Define the return periods and their associated color map

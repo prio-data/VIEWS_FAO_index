@@ -68,7 +68,7 @@ def standard_Country_Year_files(data, country_name, eval_field):
     subset_to_country = data[data['country_id'] == cid_int]
     conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
 
-    df_annual = native_per_capita_fatalities(subset_to_country)
+    df_annual = native_per_capita_fatalities(subset_to_country, pg_field='pg_id', year_field='year', fatality_field=eval_field, population_field='pop_gpw_sum')
     df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
 
     percentile_df = format_stats(df_annual, field_to_describe=eval_field)
