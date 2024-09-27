@@ -101,7 +101,7 @@ def map_top_years(country, method, returnperiodmethod, summary_text, aggregation
     map_filename_9 = find_file_with_string(map_path, 'conflict year 9 ') # looking for a 3.5 x 3.5 map
     print(map_filename_9)
 
-    annual_table_filename = find_file_with_string(annual_table_path, '4.0x5.5') #  looking for a 2.5 x 1.75 map 4_0x5_5
+    annual_table_filename = find_file_with_string(annual_table_path, 'annual_count') #  looking for a 2.5 x 1.75 map 4_0x5_5
     print(annual_table_filename)
     return_period_table_fileneame = find_file_with_string(return_period_table_path, '2.5x1.8')
     print(return_period_table_fileneame)
