@@ -1,7 +1,7 @@
 import pandas as pd
 import re
 
-def append_return_periods_to_annual_table(x, y, z, filtered_info, value_field, population_field):
+def append_return_periods_to_annual_table(x, y, z, filtered_info, value_field, population_field, return_period):
     # Calculate the total population for percentage calculation
 
     # Initialize the results dictionary for storing year, label, count, population sum, and percentage
@@ -71,16 +71,24 @@ def append_return_periods_to_annual_table(x, y, z, filtered_info, value_field, p
             
     #Right now there is no PAYOUT SCHEME defined for the big p return period so this calculation can only be developed for little p (Country year)
     if return_period == 'Country year':
+        print('you are working with the country year -- little p --  return period type...')
         return_period_to_payout_rate = dict(zip(z['Return Period'], z['Payout Rate']))
+        print(return_period_to_payout_rate)
 
     if return_period == 'Event year':
         return_period_to_payout_rate = dict.fromkeys(z['return period'], '100%')
 
+    # filtered_dict = {
+    #         int(k) if k != '--' and '.' in str(k) and float(k).is_integer() else k: v.rstrip('%')
+    #         for k, v in return_period_to_payout_rate.items()
+    #         if 'undefined' not in str(k) and '--' not in str(k) and 'undefined' not in str(v) and '--' not in str(v)
+    #     }
+        
     filtered_dict = {
-            int(k) if k != '--' and '.' in str(k) and float(k).is_integer() else k: v.rstrip('%')
-            for k, v in return_period_to_payout_rate.items()
-            if 'undefined' not in str(k) and '--' not in str(k) and 'undefined' not in str(v) and '--' not in str(v)
-        }
+    int(float(k)) if k != '--' and '.' in str(k) and float(k).is_integer() else k: v.rstrip('%')
+    for k, v in return_period_to_payout_rate.items()
+    if 'undefined' not in str(k) and '--' not in str(k) and 'undefined' not in str(v) and '--' not in str(v)
+    }
 
     transformed_dict = {
             str(k): int(v) for k, v in filtered_dict.items()
