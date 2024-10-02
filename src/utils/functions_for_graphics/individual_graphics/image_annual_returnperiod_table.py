@@ -195,6 +195,7 @@ def image_save_returnperiodtable(input_table, colors, column_to_apply_symbology,
     ensure_directory_exists(output_path)
 
     columns_to_rename = {
+    'fatalities_sum': 'Fatalities (raw)',
     'percapita_100k': 'Fatalities P.C',
     'perca_Mean': 'Fatalities P.C',
     'percentile': 'Percentile',
