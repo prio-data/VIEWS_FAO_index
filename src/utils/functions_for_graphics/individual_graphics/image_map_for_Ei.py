@@ -218,7 +218,7 @@ def image_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperi
     # print(f'Map saved to {output_file}')
 
 
-def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, eval_attribute, aggregation='1', field='percapita_100k', country_label='yes', figure_height=3.5, figure_width=3.5, year_id=1):
+def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, returnperiodmethod, year, eval_attribute, aggregation='1', field='percapita_100k', country_label='yes', figure_height=3.5, figure_width=3.5, out_of_sample='no', year_id=1):
     """
     Save a categorized map image based on specified thresholds and labels, ensuring exact dimensions.
     """
@@ -239,8 +239,13 @@ def image_save_map_E_i(gdf, thresholds, labels, color_df, country, method, retur
 
     if aggregation == '1':
         output_path = os.path.join(base_directory, 'files', country, method, returnperiodmethod, 'map_png')
+        if out_of_sample == 'yes':
+            output_path = os.path.join(base_directory, 'files', country, method, returnperiodmethod, 'out_of_sample','map_png')
+
     else:
         output_path = os.path.join(base_directory, 'files', country, method, returnperiodmethod, aggregation_string, 'map_png')
+        if out_of_sample == 'yes':
+                output_path = os.path.join(base_directory, 'files', country, method, returnperiodmethod, 'out_of_sample','map_png')
 
     ensure_directory_exists(output_path)
 
