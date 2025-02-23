@@ -51,12 +51,167 @@ from src.utils.universal_functions.FAO_table_formatting.generate_output_tables i
 #Functions bespoke to smoothing method:
 from src.utils.functions_for_method_smoothing.generate_smoothing_dataframe import smoothed_dataframe
 
-def standard_Country_Year_files(data, country_name, eval_field):
+# def standard_Country_Year_files(data, country_name, eval_field):
 
-    country_and_year_dictionary = associate_country_years(data, country_name)
-    print('printing he country and year dictionary:')
-    print(country_and_year_dictionary)
-#-----------------------------------------------------------------------------------------------------------------------------------
+#     country_and_year_dictionary = associate_country_years(data, country_name)
+#     print('printing he country and year dictionary:')
+#     print(country_and_year_dictionary)
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #   Second:
+# #       1. Subset designated country in list. This requires examining country_id information and corresponding start and end years. 
+# #   Some countries contain more than one country_id. The functions employed in this section identify the most recent country range and 
+# #   subset the neccesary temporal ranges.
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #-----------------------------------------------------------------------------------------------------------------------------------
+#     cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
+#     subset_to_country = data[data['country_id'] == cid_int]
+#     conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
+
+#     df_annual = native_per_capita_fatalities(subset_to_country, pg_field='pg_id', year_field='year', fatality_field='fatalities_sum', population_field='pop_gpw_sum')
+#     df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
+
+#     percentile_df = format_stats(df_annual, field_to_describe=eval_field)
+#     filtered_x = clean_percentile_table(percentile_df)
+#     insurance_table_df = insurance_table(filtered_x, df_annual, ['90','95','98','99','100'], attribute_to_explore=eval_field) #uses the default attribute = percapita_100k and appened_1_value = yes
+#     annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=eval_field)
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #----- SET DIRECTORIES 
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #----- THIS SETS A DIRECTORY THAT IS UNIQUE UNIQUE STANDARD METHOD ----
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #----- <<< working just with the 'Cell Year' Return Period Process >>>-
+#     output_path = base_dir + '/notebooks/methods/Country_Results/' + country_name + f'/Standard/Country Year/FAO tables/'
+#     ensure_directory_exists(output_path)
+# #-----------------------------------------------------------------------------------------------------------------------------------
+#     annual_summary_file_path = output_path + country_name + ' annual summary.csv'
+#     print(f'saving annual_summary table to: {annual_summary_file_path}')
+# #-----------------------------------------------------------------------------------------------------------------------------------
+#     insurance_table_file_path = output_path + country_name + ' insurance table.csv'
+#     print(f'saving insurance table to: {insurance_table_file_path}')
+# #-----------------------------------------------------------------------------------------------------------------------------------
+#     main_dataframe_file_path = output_path + country_name + ' main dataframe.csv'
+#     print(f'saving main dataframe table to: {main_dataframe_file_path}')
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #-----------------------------------------------------------------------------------------------------------------------------------
+# #----- NOW WE WRITE TO THE FOLDERS. -----------------------------------
+#     annual_summary.to_csv(annual_summary_file_path)
+#     insurance_table_df.to_csv(insurance_table_file_path)
+#     df_annual.to_csv(main_dataframe_file_path)
+
+#     return(conflict_profile, df_annual, annual_summary, insurance_table_df)
+def standard_Country_Year_files(data, country_names, eval_field, percentiles=['90','95','98','99','100']):
+    results = {}
+
+    # Handle case where 'Global' is the only element in the list
+    if len(country_names) == 1 and country_names[0] == 'Global':
+        subset_to_country = data  # Keep all data
+
+        # Compute conflict profile
+        conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
+
+        # Generate per capita fatalities
+        df_annual = native_per_capita_fatalities(
+            subset_to_country, pg_field='pg_id', year_field='year', 
+            fatality_field='fatalities_sum', population_field='pop_gpw_sum'
+        )
+        df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
+
+        # Compute percentiles and other stats
+        percentile_df = format_stats(df_annual, field_to_describe=eval_field)
+        filtered_x = clean_percentile_table(percentile_df)
+        print(filtered_x)
+        insurance_table_df = insurance_table(filtered_x, df_annual, percentiles, attribute_to_explore=eval_field)
+        annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=eval_field)
+
+        results['Global'] = {
+            'conflict profile': conflict_profile,
+            'PGY dataframe': df_annual,
+            'annual summary report': annual_summary,
+            'return period table': insurance_table_df
+        }
+        return results  # Return early since 'Global' is the only entry
+
+    # Loop through each country in the provided list
+    for country_name in country_names:
+        country_and_year_dictionary = associate_country_years(data, country_name)
+        print(f'Processing {country_name}...')
+        print('Printing the country and year dictionary:')
+        print(country_and_year_dictionary)
+
+        # Extract country_id and subset to country-specific data
+        cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
+        subset_to_country = data[data['country_id'] == cid_int]
+
+        # Compute conflict profile
+        conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
+
+        # Generate per capita fatalities
+        df_annual = native_per_capita_fatalities(
+            subset_to_country, pg_field='pg_id', year_field='year', 
+            fatality_field='fatalities_sum', population_field='pop_gpw_sum'
+        )
+        df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
+
+        # Compute percentiles and other stats
+        percentile_df = format_stats(df_annual, field_to_describe=eval_field)
+        filtered_x = clean_percentile_table(percentile_df)
+        insurance_table_df = insurance_table(filtered_x, df_annual, percentiles, attribute_to_explore=eval_field)
+        annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=eval_field)
+
+        results[country_name] = {
+            'conflict profile': conflict_profile,
+            'PGY dataframe': df_annual,
+            'annual summary report': annual_summary,
+            'return period table': insurance_table_df
+        }
+
+    return results
+
+
+#---Changed 21 Feb---#
+# def standard_Country_Year_files(data, country_name, eval_field, percentiles=['90','95','98','99','100']):
+
+#     if country_name == 'Global':
+#         subset_to_country = data  # Keep all data
+#     else:
+#         country_and_year_dictionary = associate_country_years(data, country_name)
+#         print('Printing the country and year dictionary:')
+#         print(country_and_year_dictionary)
+
+#         # Extract country_id and subset to country-specific data
+#         cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
+#         subset_to_country = data[data['country_id'] == cid_int]
+
+#     # Compute conflict profile
+#     conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
+
+#     # Generate per capita fatalities
+#     df_annual = native_per_capita_fatalities(
+#         subset_to_country, pg_field='pg_id', year_field='year', 
+#         fatality_field='fatalities_sum', population_field='pop_gpw_sum'
+#     )
+#     df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
+
+#     # Compute percentiles and other stats
+#     percentile_df = format_stats(df_annual, field_to_describe=eval_field)
+#     filtered_x = clean_percentile_table(percentile_df)
+#     insurance_table_df = insurance_table(filtered_x, df_annual, percentiles, attribute_to_explore=eval_field)
+#     annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=eval_field)
+
+#     return conflict_profile, df_annual, annual_summary, insurance_table_df
+
+
+def smoothing_Country_Year_files(data, country_name, percentiles=['90','95','98','99','100']):
+
+    if country_name == 'Global':
+        subset_to_country = data  # Keep all data
+    else: 
+        country_and_year_dictionary = associate_country_years(data, country_name)
+        print('Printing the country and year dictionary:')
+        print(country_and_year_dictionary)
+        cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
+        subset_to_country = data[data['country_id'] == cid_int]
 #-----------------------------------------------------------------------------------------------------------------------------------
 #   Second:
 #       1. Subset designated country in list. This requires examining country_id information and corresponding start and end years. 
@@ -64,54 +219,8 @@ def standard_Country_Year_files(data, country_name, eval_field):
 #   subset the neccesary temporal ranges.
 #-----------------------------------------------------------------------------------------------------------------------------------
 #-----------------------------------------------------------------------------------------------------------------------------------
-    cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
-    subset_to_country = data[data['country_id'] == cid_int]
-    conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
 
-    df_annual = native_per_capita_fatalities(subset_to_country, pg_field='pg_id', year_field='year', fatality_field='fatalities_sum', population_field='pop_gpw_sum')
-    df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
 
-    percentile_df = format_stats(df_annual, field_to_describe=eval_field)
-    filtered_x = clean_percentile_table(percentile_df)
-    insurance_table_df = insurance_table(filtered_x, df_annual, ['90','95','98','99','100'], attribute_to_explore=eval_field) #uses the default attribute = percapita_100k and appened_1_value = yes
-    annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=eval_field)
-#-----------------------------------------------------------------------------------------------------------------------------------
-#----- SET DIRECTORIES 
-#-----------------------------------------------------------------------------------------------------------------------------------
-#----- THIS SETS A DIRECTORY THAT IS UNIQUE UNIQUE STANDARD METHOD ----
-#-----------------------------------------------------------------------------------------------------------------------------------
-#----- <<< working just with the 'Cell Year' Return Period Process >>>-
-    output_path = base_dir + '/notebooks/methods/Country_Results/' + country_name + f'/Standard/Country Year/FAO tables/'
-    ensure_directory_exists(output_path)
-#-----------------------------------------------------------------------------------------------------------------------------------
-    annual_summary_file_path = output_path + country_name + ' annual summary.csv'
-    print(f'saving annual_summary table to: {annual_summary_file_path}')
-#-----------------------------------------------------------------------------------------------------------------------------------
-    insurance_table_file_path = output_path + country_name + ' insurance table.csv'
-    print(f'saving insurance table to: {insurance_table_file_path}')
-#-----------------------------------------------------------------------------------------------------------------------------------
-    main_dataframe_file_path = output_path + country_name + ' main dataframe.csv'
-    print(f'saving main dataframe table to: {main_dataframe_file_path}')
-#-----------------------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------------------
-#----- NOW WE WRITE TO THE FOLDERS. -----------------------------------
-    annual_summary.to_csv(annual_summary_file_path)
-    insurance_table_df.to_csv(insurance_table_file_path)
-    df_annual.to_csv(main_dataframe_file_path)
-
-    return(conflict_profile, df_annual, annual_summary, insurance_table_df)
-
-def smoothing_Country_Year_files(data, country_name):
-    country_and_year_dictionary = associate_country_years(data, country_name)
-#-----------------------------------------------------------------------------------------------------------------------------------
-#   Second:
-#       1. Subset designated country in list. This requires examining country_id information and corresponding start and end years. 
-#   Some countries contain more than one country_id. The functions employed in this section identify the most recent country range and 
-#   subset the neccesary temporal ranges.
-#-----------------------------------------------------------------------------------------------------------------------------------
-#-----------------------------------------------------------------------------------------------------------------------------------
-    cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
-    subset_to_country = data[data['country_id'] == cid_int]
     conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
 
     #concludes the AOI subsetting parameters----
@@ -122,7 +231,7 @@ def smoothing_Country_Year_files(data, country_name):
 
     percentile_df = format_stats(df_annual_cleaned, 'perca_Mean')
     filtered_x = clean_percentile_table(percentile_df)
-    insurance_table_df = insurance_table(filtered_x, df_annual_cleaned, ['90','95','98','99','100'], 'perca_Mean') #uses the default attribute = percapita_100k and appened_1_value = yes
+    insurance_table_df = insurance_table(filtered_x, df_annual_cleaned, percentiles, 'perca_Mean') #uses the default attribute = percapita_100k and appened_1_value = yes
     annual_summary = annual_summary_table(df_annual_cleaned, 'smoothing', 'perca_Mean')
 #-----------------------------------------------------------------------------------------------------------------------------------
 #----- SET DIRECTORIES 
@@ -150,11 +259,15 @@ def smoothing_Country_Year_files(data, country_name):
 #-----------------------------------------------------------------------------------------------------------------------------------
     return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
 
-def aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_field):
+def aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_field, percentiles=['90','95','98','99','100']):
 #-----------------------------------------------------------------------------------------------------------------------------------
-    country_and_year_dictionary = associate_country_years(data, country_name)
-    cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
-    subset_to_country = data[data['country_id'] == cid_int]
+    if country_name == 'Global':
+        subset_to_country = data  # Keep all data
+    else: 
+        country_and_year_dictionary = associate_country_years(data, country_name)
+        cid_int = pull_from_c_y_dictionary(country_and_year_dictionary)
+        subset_to_country = data[data['country_id'] == cid_int]
+
     conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
 #-----------------------------------------------------------------------------------------------------------------------------------
 # First:
@@ -167,32 +280,46 @@ def aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_fi
 #   Some countries contain more than one country_id. The functions employed in this section identify the most recent country range and 
 #   subset the neccesary temporal ranges.
 #-----------------------------------------------------------------------------------------------------------------------------------
-    country_and_year_dictionary = associate_country_years(aggregated_cells, country_name)
-    print('printing the country id and year dictionary for reference:')
-    print(country_and_year_dictionary)
+    if country_name != 'Global':
 
-    aggregated_cells_filtered_cid_year, cid = map_c_y_dictionary_to_data(country_and_year_dictionary,aggregated_cells)
-    cid = str(cid)
+        country_and_year_dictionary = associate_country_years(aggregated_cells, country_name)
+        print('printing the country id and year dictionary for reference:')
+        print(country_and_year_dictionary)
 
-    #print(aggregated_cells_filtered_cid_year)
-    print(cid)
+        aggregated_cells_filtered_cid_year, cid = map_c_y_dictionary_to_data(country_and_year_dictionary,aggregated_cells)
+        cid = str(cid)
 
-    aggregated_cells_filtered_cid_year = aggregated_cells_filtered_cid_year.rename(columns={'country_id':'c_id'})
-    aggregated_cells_added_cid = map_c_id_to_aggregations(aggregated_cells_filtered_cid_year)
+        #print(aggregated_cells_filtered_cid_year)
+        print(cid)
+
+        aggregated_cells_filtered_cid_year = aggregated_cells_filtered_cid_year.rename(columns={'country_id':'c_id'})
+        aggregated_cells_added_cid = map_c_id_to_aggregations(aggregated_cells_filtered_cid_year)
+        aggregated_cells_table = aggregated_cells_added_cid
+    else:
+        aggregated_cells_table = aggregated_cells
+
     #This process is specific to Aggregation Method: 
     columns_to_group = ['pg_id', 'year']
-    columns_to_keep = ['pg_id', 'year', 'GIS__Index', 'scale_cid_list', 'most_common_cid']
-    df_annual = aggregated_cells_added_cid[columns_to_keep]
+    # Define required columns
+    columns_to_keep = ['pg_id', 'year', 'GIS__Index']
+
+    # Check if both 'most_common_cid' and 'scale_cid_list' exist, then add both
+    if {'most_common_cid', 'scale_cid_list'}.issubset(aggregated_cells_table.columns):
+        columns_to_keep.extend(['most_common_cid', 'scale_cid_list'])
+
+    # Now use columns_to_keep to select only the relevant columns
+
+    df_annual = aggregated_cells_table[columns_to_keep]
     max_year = max(df_annual['year'])
     min_year = min(df_annual['year'])
     print(f'The max year in the dataframe (max_year): {max_year}')
     print(f'The min year in the dataframe (max_year): {min_year}')
 
-    sum_fatalities_annual = aggregated_cells_added_cid.groupby(columns_to_group)['fatalities_sum'].sum().reset_index()
+    sum_fatalities_annual = aggregated_cells_table.groupby(columns_to_group)['fatalities_sum'].sum().reset_index()
     print('the fields in sum_fatalities_annual:')
     print(list(sum_fatalities_annual))
 
-    population_to_annual = aggregated_cells_added_cid.groupby(columns_to_group)['pop_gpw_sum'].last().reset_index()
+    population_to_annual = aggregated_cells_table.groupby(columns_to_group)['pop_gpw_sum'].last().reset_index()
     print('population_to_annual:')
     print(list(population_to_annual))
 
@@ -200,7 +327,10 @@ def aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_fi
     all_annual = pd.merge(base_annual,df_annual, on=['pg_id', 'year'])
 
     #Now we summarize to get to the aggregation level -- dropping the PG level --
-    agg_index_columns = ['year', 'GIS__Index', 'most_common_cid']
+    # Dynamically adjust the columns used for grouping
+    agg_index_columns = ['year', 'GIS__Index']
+    if 'most_common_cid' in all_annual.columns:
+        agg_index_columns.append('most_common_cid')
 
     aggregation_annual = all_annual.groupby(agg_index_columns).agg({
         'fatalities_sum': 'sum',
@@ -210,12 +340,15 @@ def aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_fi
     aggregation_annual['percapita_100k'] = ((aggregation_annual['fatalities_sum'] / aggregation_annual['pop_gpw_sum'])) * 100000
     aggregation_annual['percapita_100k'] = aggregation_annual['percapita_100k'].fillna(0)
 
-    aggregation_annual__country = aggregation_annual[aggregation_annual['most_common_cid'] == cid]
+    if country_name != 'Global':
+        aggregation_annual__country = aggregation_annual[aggregation_annual['most_common_cid'] == cid]
+    else:
+        aggregation_annual__country = aggregation_annual
     aggregation_annual__country['percapita_100k'] = aggregation_annual__country['percapita_100k'].round(1)
 
     percentile_df = format_stats(aggregation_annual__country, field_to_describe=eval_field)
     filtered_x = clean_percentile_table(percentile_df)
-    insurance_table_df = insurance_table(filtered_x, aggregation_annual__country, ['90','95','98','99','100'], eval_field, 'yes')
+    insurance_table_df = insurance_table(filtered_x, aggregation_annual__country, percentiles, eval_field, 'yes')
     annual_summary = annual_summary_table(aggregation_annual__country, 'aggregation', eval_field)
 
 #-----------------------------------------------------------------------------------------------------------------------------------
@@ -384,7 +517,7 @@ def aggregation_Event_Year_files(data, country_name, method, aggregation_unit, e
 
     return(conflict_profile, aggregation_annual__country_renamed, annual_summary, insurance_from_E_i)
 
-def insurance_files(data, country_name, method, return_period_process, aggregation_unit='0', eval_field='percapita_100k'):
+def insurance_files(data, country_name, method, return_period_process, percentiles=['90','95','98','99','100'], aggregation_unit='0', eval_field='percapita_100k'):
     if method == 'smoothing' and return_period_process == 'Event year':
         conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i =  smoothing_Event_Year_files(data, country_name, method, return_period_process)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
@@ -398,14 +531,16 @@ def insurance_files(data, country_name, method, return_period_process, aggregati
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_from_E_i)
 
     if method == 'smoothing' and return_period_process == 'Country year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = smoothing_Country_Year_files(data, country_name)
+        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = smoothing_Country_Year_files(data, country_name, percentiles)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
 
     if method == 'aggregation' and return_period_process == 'Country year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_field)
+        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = aggregation_Country_Year_files(data, country_name, aggregation_unit, eval_field, percentiles)
         return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
     
     if method == 'standard' and return_period_process == 'Country year':
-        conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name, eval_field)
-        return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
+        # conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df = standard_Country_Year_files(data, country_name, eval_field, percentiles)
+        results = standard_Country_Year_files(data, country_name, eval_field, percentiles)
+        return(results)
+        #return(conflict_profile, df_annual_cleaned, annual_summary, insurance_table_df)
 
