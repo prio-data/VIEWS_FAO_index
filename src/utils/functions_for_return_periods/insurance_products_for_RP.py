@@ -120,7 +120,7 @@ def standard_Country_Year_files(data, country_names, eval_field, percentiles=['9
         # Compute percentiles and other stats
         percentile_df = format_stats(df_annual, field_to_describe=eval_field)
         filtered_x = clean_percentile_table(percentile_df)
-        print(filtered_x)
+        #print(filtered_x)
         insurance_table_df = insurance_table(filtered_x, df_annual, percentiles, attribute_to_explore=eval_field)
         annual_summary = annual_summary_table(df_annual, 'standard', fat_or_pcf=eval_field)
 

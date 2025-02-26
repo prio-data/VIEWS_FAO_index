@@ -354,35 +354,38 @@ def insurance_table(perc_df, orginal_df, percentiles_of_interest, attribute_to_e
 #     return df_grouped
 
 def annual_summary_table(input_df, method, fat_or_pcf='percapita_100k'):
-
-# Group by year and sort values within each group
+    # Group by year and sort values within each group
     df_sorted = input_df.sort_values(by=['year', fat_or_pcf], ascending=[True, False])
 
-# Extract the top 3 values for each year
+    # Extract the top 3 values for each year
     df_top3 = df_sorted.groupby('year').head(3)
 
-# Aggregate to get the top three values and average value for each year
+    # Aggregate to get the top three values for each year
     result_df = df_top3.groupby('year').agg(
         first_value=(fat_or_pcf, lambda x: x.iloc[0] if len(x) > 0 else None),
         second_value=(fat_or_pcf, lambda x: x.iloc[1] if len(x) > 1 else None),
         third_value=(fat_or_pcf, lambda x: x.iloc[2] if len(x) > 2 else None)
     ).reset_index()
 
+    # If method is not "smoothing", merge in the average values
     if method != 'smoothing':
         average_values = calculate_histogram_data(input_df)
-        # List of columns to keep
-        columns_to_keep = ['year', 'average_value']  # Replace with your column names
-
-        # Filter the dataframe to keep only the specified columns
+        columns_to_keep = ['year', 'average_value']
         average_values_filtered = average_values[columns_to_keep]
-        
-        # Calculate the average value for each year -- df_sorted was org_df
-        #average_values = df_sorted.groupby('year')[fat_or_pcf].mean().reset_index().rename(columns={fat_or_pcf: 'average_value'})
-        
-        # Merge the result_df with average_values
+
+        # Merge with result_df
         result_df = pd.merge(result_df, average_values_filtered, on='year')
-        
-    return(result_df)
+
+    # If fat_or_pcf is 'fatalities_sum', compute total fatalities
+    if fat_or_pcf == 'fatalities_sum':
+        total_fatalities = input_df.groupby('year')['fatalities_sum'].sum().reset_index()
+        total_fatalities.rename(columns={'fatalities_sum': 'total_fatalities'}, inplace=True)
+
+        # Merge total fatalities into result_df
+        result_df = pd.merge(result_df, total_fatalities, on='year')
+
+    return result_df
+
 
 
 """ 

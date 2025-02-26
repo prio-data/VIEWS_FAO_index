@@ -200,3 +200,40 @@ def assign_color_to_zero_values(df, zero_value_color_name):
     df_filtered = df_filtered.drop_duplicates()
 
     return df_filtered
+
+def process_and_merge_return_periods(df_return_period, dynamic_colormap_df_corrected):
+    """
+    Processes and merges return period data with a dynamic colormap based on Percentile values.
+    
+    Steps:
+    1. Replaces 'max' in the Percentile column of df_return_period with 100.
+    2. Converts Percentile columns to float and rounds to one decimal place.
+    3. Merges df_return_period with dynamic_colormap_df_corrected on Percentile.
+    4. Prompts the user to enter a color name for zero values.
+    5. Assigns the user-defined color to zero values using `assign_color_to_zero_values`.
+    
+    Parameters:
+    - df_return_period (pd.DataFrame): DataFrame containing return period data with a 'Percentile' column.
+    - dynamic_colormap_df_corrected (pd.DataFrame): DataFrame containing colormap mappings with a 'Percentile' column.
+    
+    Returns:
+    - pd.DataFrame: The merged and updated dataframe with the assigned zero-value color.
+    """
+
+    # Ensure "max" is replaced with 100 in Percentile column
+    df_return_period["Percentile"] = df_return_period["Percentile"].replace("max", 100)
+    
+    # Convert Percentile column to float and round to one decimal place
+    df_return_period["Percentile"] = df_return_period["Percentile"].astype(float).round(1)
+    dynamic_colormap_df_corrected["Percentile"] = dynamic_colormap_df_corrected["Percentile"].astype(float).round(1)
+
+    # Perform the join based on the shared Percentile column
+    df_merged = df_return_period.merge(dynamic_colormap_df_corrected, on="Percentile", how="left")
+
+    # Prompt user to enter a color name for zero values
+    zero_value_color_name = input("Enter the color name to assign to zero values (e.g., 'blue', 'red', 'green'): ").strip().lower()
+
+    # Apply the function with user input
+    df_updated = assign_color_to_zero_values(df_merged, zero_value_color_name)
+
+    return df_updated

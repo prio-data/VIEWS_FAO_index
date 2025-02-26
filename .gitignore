@@ -8,6 +8,8 @@
 StatSheets/
 Tables_For_Timeline_Maps/
 Report_Checks/
+data/raw_viewser/
+
 
 # pkl files
 *.pkl
