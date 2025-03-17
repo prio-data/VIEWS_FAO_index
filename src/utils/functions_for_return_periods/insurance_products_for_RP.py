@@ -110,14 +110,29 @@ def standard_Country_Year_files(data, country_names, eval_field, percentiles=['9
         # Compute conflict profile
         conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
 
-        # Generate per capita fatalities
-        df_annual = native_per_capita_fatalities(
-            subset_to_country, pg_field='pg_id', year_field='year', 
-            fatality_field='fatalities_sum', population_field='pop_gpw_sum'
-        )
+        if eval_field == 'ged_ns':
+            # Generate per capita fatalities
+            df_annual = native_per_capita_fatalities(
+                subset_to_country, pg_field='pg_id', year_field='year', 
+                fatality_field='ged_ns', population_field='pop_gpw_sum'
+            )
+
+            df_annual = df_annual.rename(columns={"ged_ns": "fatalities_sum"})
+
+        else:
+            # Generate per capita fatalities
+            df_annual = native_per_capita_fatalities(
+                subset_to_country, pg_field='pg_id', year_field='year', 
+                fatality_field='fatalities_sum', population_field='pop_gpw_sum'
+            )
+
         df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
 
         # Compute percentiles and other stats
+        if eval_field == 'ged_ns':
+            eval_field = 'fatalities_sum'
+            print(eval_field)
+
         percentile_df = format_stats(df_annual, field_to_describe=eval_field)
         filtered_x = clean_percentile_table(percentile_df)
         #print(filtered_x)
@@ -146,12 +161,30 @@ def standard_Country_Year_files(data, country_names, eval_field, percentiles=['9
         # Compute conflict profile
         conflict_profile = {col: subset_to_country[col].sum() for col in ['ged_sb', 'ged_ns', 'ged_os', 'fatalities_sum']}
 
-        # Generate per capita fatalities
-        df_annual = native_per_capita_fatalities(
-            subset_to_country, pg_field='pg_id', year_field='year', 
-            fatality_field='fatalities_sum', population_field='pop_gpw_sum'
-        )
+        if eval_field == 'ged_ns':
+            # Generate per capita fatalities
+            df_annual = native_per_capita_fatalities(
+                subset_to_country, pg_field='pg_id', year_field='year', 
+                fatality_field='ged_ns', population_field='pop_gpw_sum'
+            )
+            print('these are the fields in df_annual dataframe:')
+            print(list(df_annual))
+
+            df_annual = df_annual.rename(columns={"ged_ns": "fatalities_sum"})
+
+        else:
+            # Generate per capita fatalities
+            df_annual = native_per_capita_fatalities(
+                subset_to_country, pg_field='pg_id', year_field='year', 
+                fatality_field='fatalities_sum', population_field='pop_gpw_sum'
+            )
+
         df_annual['percapita_100k'] = df_annual['percapita_100k'].round(1)
+
+        # Compute percentiles and other stats
+        if eval_field == 'ged_ns':
+            eval_field = 'fatalities_sum'
+            print(eval_field)
 
         # Compute percentiles and other stats
         percentile_df = format_stats(df_annual, field_to_describe=eval_field)
